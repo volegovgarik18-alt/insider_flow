@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Analista Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   ANALISTA PRO — LIQUID GLASS DESIGN SYSTEM
+   Background gallery + glassmorphism widgets
+══════════════════════════════════════════════ */
+
+/* ── TOKENS ── */
+:root{
+  /* Gold accent */
+  --gold:#c9a84c; --gold2:#f0d080; --gold3:rgba(201,168,76,.18);
+  /* Semantic */
+  --bull:#3a8a28; --bull-s:rgba(58,138,40,.15);
+  --bear:#c0392b; --bear-s:rgba(192,57,43,.15);
+  --warn:#c07000; --warn-s:rgba(192,112,0,.14);
+  --blue:#2255aa; --blue-s:rgba(34,85,170,.13);
+  /* Glass system */
+  --glass:rgba(255,255,255,.14);
+  --glass-h:rgba(255,255,255,.22);
+  --glass-b:rgba(255,255,255,.25);
+  --glass-border:rgba(255,255,255,.3);
+  --glass-shadow:0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.3);
+  --glass-shadow-sm:0 4px 16px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.25);
+  /* Text on glass */
+  --txt:#ffffff; --txt2:rgba(255,255,255,.8); --txt3:rgba(255,255,255,.55);
+  --txt-dark:#111; --txt-dark2:#444; --txt-dark3:#777;
+  /* Shared */
+  --rad:14px; --rad-sm:9px; --rad-xs:6px;
+  --blur:saturate(180%) blur(18px);
+  --blur-sm:saturate(160%) blur(12px);
+  /* Topbar */
+  --bar:rgba(8,8,6,.72);
+}
+
+/* ── BASE ── */
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Syne',sans-serif;
+  color:var(--txt);
+  min-height:100vh;
+  overflow-x:hidden;
+  transition:background .5s ease;
+  background:#1a1a2e;
+}
+
+/* ── BACKGROUND CANVAS ── */
+#bg-canvas{
+  position:fixed;inset:0;z-index:0;
+  width:100vw;height:100vh;
+  background-size:cover;background-position:center;background-repeat:no-repeat;
+  transition:opacity .6s ease;
+}
+#bg-overlay{
+  position:fixed;inset:0;z-index:1;
+  pointer-events:none;
+}
+
+/* ── TOPBAR — frosted dark bar ── */
+.bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--bar);
+  -webkit-backdrop-filter:var(--blur-sm);
+  backdrop-filter:var(--blur-sm);
+  border-bottom:1px solid rgba(255,255,255,.1);
+  padding:.5rem 1.4rem;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.logo{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.16em;color:var(--gold2)}
+.ticks{display:flex;gap:18px;align-items:center}
+.tk{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.4)}
+.tk b{font-weight:500}
+.tk b.up{color:#86efac}.tk b.dn{color:#fca5a5}.tk b.nt{color:var(--gold2)}
+.live{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.35)}
+.ldot{width:6px;height:6px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;animation:bl 2s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* alert */
+.geo-alert{
+  position:sticky;top:38px;z-index:99;
+  background:rgba(60,10,10,.7);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(248,113,113,.2);
+  padding:.32rem 1.4rem;
+  font-family:'DM Mono',monospace;font-size:10px;color:#fca5a5;letter-spacing:.03em;
+}
+
+/* ── SHELL ── */
+.shell{
+  position:relative;z-index:10;
+  max-width:1060px;margin:0 auto;padding:1.2rem 1rem;
+}
+
+/* ── TABS — glass pill ── */
+.tabs{
+  display:flex;gap:2px;
+  background:rgba(255,255,255,.1);
+  -webkit-backdrop-filter:var(--blur-sm);backdrop-filter:var(--blur-sm);
+  border:1px solid var(--glass-border);
+  border-radius:var(--rad);
+  padding:3px;
+  margin-bottom:1.2rem;
+  box-shadow:var(--glass-shadow-sm);
+}
+.tab{
+  flex:1;text-align:center;padding:7px 4px;cursor:pointer;border-radius:10px;
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.05em;
+  color:var(--txt3);background:transparent;
+  transition:all .2s;border:none;outline:none;
+}
+.tab:hover{color:var(--txt2);background:rgba(255,255,255,.08)}
+.tab.on{
+  background:rgba(255,255,255,.22);
+  color:var(--txt);font-weight:500;
+  box-shadow:0 2px 8px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.35);
+}
+.panel{display:none}.panel.on{display:block;animation:fin .2s ease}
+@keyframes fin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── GRID ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:11px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:11px}
+
+/* ── LIQUID GLASS CARD ── */
+.card{
+  background:var(--glass);
+  -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid var(--glass-border);
+  border-radius:var(--rad);
+  padding:1rem 1.15rem;
+  box-shadow:var(--glass-shadow);
+  transition:background .2s, box-shadow .2s;
+  margin-bottom:11px;
+}
+.card:hover{background:var(--glass-h);}
+
+/* Card label */
+.clbl{
+  font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.1em;
+  color:var(--txt3);text-transform:uppercase;margin-bottom:10px;
+  display:flex;align-items:center;gap:7px;
+}
+.clbl::after{content:'';flex:1;height:0.5px;background:rgba(255,255,255,.18)}
+
+/* ── METRIC CARD — glass tile ── */
+.mc{
+  background:rgba(255,255,255,.1);
+  -webkit-backdrop-filter:var(--blur-sm);backdrop-filter:var(--blur-sm);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:var(--rad-sm);
+  padding:.85rem 1rem;text-align:center;
+  position:relative;overflow:hidden;
+  box-shadow:0 4px 14px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.mc::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);
+}
+.mc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.mc.pos::after{background:var(--bull)}.mc.neg::after{background:var(--bear)}.mc.warn::after{background:var(--gold)}
+.mv{font-size:21px;font-weight:700;line-height:1;margin-bottom:3px;color:var(--txt)}
+.ml{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--txt3);letter-spacing:.06em}
+.ms{font-size:10px;color:var(--txt3);margin-top:3px}
+.ct-gold{color:var(--gold2)}.ct-bull{color:#86efac}.ct-bear{color:#fca5a5}
+
+/* ── VERDICT BOX ── */
+.v{
+  border-radius:var(--rad-sm);padding:1rem 1.15rem;margin-bottom:11px;
+  -webkit-backdrop-filter:var(--blur-sm);backdrop-filter:var(--blur-sm);
+}
+.vbull{background:rgba(58,138,40,.2);border:1px solid rgba(58,138,40,.5)}
+.vbear{background:rgba(192,57,43,.2);border:1px solid rgba(192,57,43,.5)}
+.vneu{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2)}
+.vwarn{background:rgba(192,112,0,.2);border:1px solid rgba(192,112,0,.5)}
+.vgold{background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.5)}
+.vt{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--txt)}
+.vbull .vt{color:#86efac}.vbear .vt{color:#fca5a5}
+.vneu .vt{color:rgba(255,255,255,.9)}.vwarn .vt{color:#fcd34d}.vgold .vt{color:var(--gold2)}
+.vb{font-size:11.5px;line-height:1.65;color:var(--txt2)}
+
+/* ── FORM ELEMENTS ── */
+.fr{display:flex;flex-direction:column;margin-bottom:9px}
+.fl{font-family:'DM Mono',monospace;font-size:9px;color:var(--txt3);letter-spacing:.05em;margin-bottom:3px}
+select{
+  font-size:12px;padding:5px 8px;
+  background:rgba(0,0,0,.25);color:var(--txt);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.2);border-radius:var(--rad-xs);
+  font-family:'Syne',sans-serif;outline:none;
+  transition:border-color .15s;
+}
+select:focus{border-color:var(--gold2)}
+select option{background:#1a1a2e;color:#fff}
+
+/* ── CHECKLIST ── */
+.chk{list-style:none}
+.chk li{font-size:11px;color:var(--txt2);padding:5px 0;border-bottom:0.5px solid rgba(255,255,255,.1);display:flex;gap:7px;align-items:flex-start;line-height:1.55}
+.chk li:last-child{border-bottom:none}
+.d{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.dg{background:#86efac}.dr{background:#fca5a5}.da{background:#fcd34d}.db{background:#93c5fd}
+
+/* ── TABLE ── */
+table.dt{width:100%;border-collapse:collapse;font-size:11px}
+table.dt th{text-align:left;font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.07em;color:var(--txt3);padding:5px 7px;border-bottom:0.5px solid rgba(255,255,255,.15)}
+table.dt td{padding:5px 7px;color:var(--txt2);border-bottom:0.5px solid rgba(255,255,255,.08);vertical-align:middle}
+table.dt tr:last-child td{border-bottom:none}
+.b{display:inline-block;font-family:'DM Mono',monospace;font-size:8.5px;padding:1px 6px;border-radius:7px}
+.bg{background:rgba(58,138,40,.25);color:#86efac}
+.br{background:rgba(192,57,43,.25);color:#fca5a5}
+.ba{background:rgba(192,112,0,.25);color:#fcd34d}
+.bb{background:rgba(34,85,170,.3);color:#93c5fd}
+.bx{background:rgba(255,255,255,.12);color:rgba(255,255,255,.6)}
+
+/* ── INSIGHT ── */
+.ins{
+  background:rgba(0,0,0,.18);
+  border-left:2px solid var(--gold);
+  padding:.6rem .9rem;border-radius:0 7px 7px 0;
+  font-size:11px;color:var(--txt2);line-height:1.65;margin-bottom:10px;
+}
+.ins strong{color:var(--txt)}
+
+/* ── PHASE CARDS ── */
+.phases{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:11px}
+.ph{
+  border-radius:var(--rad-sm);padding:.75rem;cursor:pointer;
+  -webkit-backdrop-filter:var(--blur-sm);backdrop-filter:var(--blur-sm);
+  border:1.5px solid rgba(255,255,255,.12);
+  transition:all .18s;
+  background:rgba(255,255,255,.08);
+}
+.ph:hover{background:rgba(255,255,255,.14)}
+.ph1.sel{border-color:#86efac;background:rgba(58,138,40,.2)}
+.ph2.sel{border-color:#93c5fd;background:rgba(34,85,170,.2)}
+.ph3.sel{border-color:#fcd34d;background:rgba(192,112,0,.2)}
+.ph4.sel{border-color:#fca5a5;background:rgba(192,57,43,.2)}
+.ph-t{font-size:10px;font-weight:700;letter-spacing:.03em;margin-bottom:3px;color:var(--txt)}
+.ph1.sel .ph-t{color:#86efac}.ph2.sel .ph-t{color:#93c5fd}
+.ph3.sel .ph-t{color:#fcd34d}.ph4.sel .ph-t{color:#fca5a5}
+.ph-s{font-size:9px;color:var(--txt3);line-height:1.4}
+
+/* Phase detail rows */
+.phase-row{font-size:11px;padding:5px 0;border-bottom:0.5px solid rgba(255,255,255,.1);display:flex;gap:10px;line-height:1.55}
+.phase-row:last-child{border-bottom:none}
+.phase-key{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--txt3);min-width:96px;flex-shrink:0;padding-top:1px;letter-spacing:.04em}
+.phase-op-key{font-family:'DM Mono',monospace;font-size:8.5px;min-width:96px;flex-shrink:0;padding-top:1px;letter-spacing:.04em;font-weight:700}
+
+/* ── CHART ── */
+.cw{position:relative;height:150px;width:100%;margin-bottom:8px}
+
+/* ── ACTION ROW ── */
+.action-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.count-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--txt3);margin-left:auto;letter-spacing:.04em}
+
+/* ── FX KEY INPUT ── */
+.fx-key-row{display:flex;gap:7px;align-items:center}
+.fx-key-row input{
+  flex:1;font-size:11px;padding:6px 8px;
+  background:rgba(0,0,0,.3);color:var(--txt);
+  border:1px solid rgba(255,255,255,.2);border-radius:var(--rad-xs);
+  font-family:'DM Mono',monospace;outline:none;transition:border-color .15s;
+}
+.fx-key-row input:focus{border-color:var(--gold2)}
+.fx-key-row input::placeholder{color:rgba(255,255,255,.3)}
+
+/* ── RING ROW ── */
+.ring-row{display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:16px;padding:1rem 0}
+.ri{text-align:center;min-width:82px}
+.ri svg{display:block;margin:0 auto 4px}
+.rv{font-size:18px;font-weight:700;line-height:1;margin-bottom:2px;color:var(--txt)}
+.rl{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--txt3);letter-spacing:.07em}
+
+/* ── QUOTE CARD ── */
+.quote-card{
+  background:rgba(0,0,0,.35);
+  -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid rgba(201,168,76,.35);
+  border-radius:var(--rad);
+  padding:1.4rem 1.6rem;
+  margin-bottom:11px;
+  position:relative;overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,.3), inset 0 1px 0 rgba(201,168,76,.2);
+}
+.quote-card::before{
+  content:'"';position:absolute;top:-8px;left:14px;
+  font-size:80px;color:rgba(201,168,76,.1);
+  font-family:Georgia,serif;line-height:1;pointer-events:none;
+}
+.qtext{font-size:15px;font-weight:500;color:var(--gold2);line-height:1.65;margin-bottom:8px;font-style:italic;position:relative;z-index:1}
+.qsrc{font-family:'DM Mono',monospace;font-size:9px;color:rgba(201,168,76,.55);letter-spacing:.06em}
+.qnav{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:10px}
+.qcount{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.04em}
+.qbtn{
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);
+  color:rgba(255,255,255,.6);border-radius:5px;padding:4px 10px;
+  cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;
+  transition:all .15s;
+}
+.qbtn:hover{border-color:var(--gold);color:var(--gold2)}
+
+/* ── PILLARS ── */
+.pillar{
+  display:flex;gap:12px;padding:.9rem 1rem;border-radius:var(--rad-sm);
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);
+  margin-bottom:8px;transition:all .16s;align-items:flex-start;
+}
+.pillar:hover{background:rgba(255,255,255,.12);border-color:rgba(201,168,76,.4)}
+.p-num{font-family:'DM Mono',monospace;font-size:20px;font-weight:400;color:var(--gold2);min-width:28px;line-height:1.1;flex-shrink:0}
+.p-title{font-size:12px;font-weight:700;color:var(--txt);margin-bottom:3px;letter-spacing:.01em}
+.p-desc{font-size:11px;color:var(--txt2);line-height:1.58}
+
+/* ── MINDSET TYPE ── */
+.mtype{
+  border-radius:var(--rad-sm);padding:1rem 1.1rem;
+  border:1px solid rgba(255,255,255,.12);cursor:pointer;
+  transition:all .18s;margin-bottom:8px;
+  background:rgba(255,255,255,.07);
+}
+.mtype:last-of-type{margin-bottom:0}
+.mtype:hover{background:rgba(255,255,255,.12)}
+.mt-f.ssel{border-color:rgba(192,57,43,.7);background:rgba(192,57,43,.15)}
+.mt-g.ssel{border-color:rgba(58,138,40,.7);background:rgba(58,138,40,.15)}
+.mt-b.ssel{border-color:rgba(34,85,170,.7);background:rgba(34,85,170,.15)}
+.mt-title{font-size:12px;font-weight:700;margin-bottom:4px;color:var(--txt)}
+.mt-f.ssel .mt-title{color:#fca5a5}.mt-g.ssel .mt-title{color:#86efac}.mt-b.ssel .mt-title{color:#93c5fd}
+.mt-desc{font-size:11px;color:var(--txt2);line-height:1.58}
+
+/* ── MCHECK ── */
+.mcheck{
+  display:flex;align-items:flex-start;gap:10px;padding:.72rem .9rem;
+  border-radius:var(--rad-xs);margin-bottom:6px;
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.05);
+  transition:all .15s;
+}
+.mcheck:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2)}
+.mcheck input[type=checkbox]{margin-top:2px;accent-color:var(--gold2);width:14px;height:14px;flex-shrink:0;cursor:pointer}
+.mcheck label{font-size:11.5px;color:var(--txt2);line-height:1.52;cursor:pointer}
+
+/* ── EMO SELECTOR ── */
+.emo-sel{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.emo-btn{
+  font-size:11px;padding:5px 12px;border-radius:20px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);
+  color:var(--txt2);transition:all .14s;font-family:'DM Mono',monospace;letter-spacing:.03em;
+}
+.emo-btn:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3)}
+.emo-btn.sel{border-color:var(--gold);background:rgba(201,168,76,.2);color:var(--gold2);font-weight:500}
+
+/* ── JOURNAL ── */
+.journal-area{
+  width:100%;min-height:88px;
+  font-family:'DM Mono',monospace;font-size:11.5px;line-height:1.7;
+  padding:.75rem;
+  background:rgba(0,0,0,.3);color:var(--txt);
+  border:1px solid rgba(255,255,255,.2);border-radius:var(--rad-sm);
+  resize:vertical;outline:none;transition:border-color .15s;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+}
+.journal-area:focus{border-color:var(--gold2)}
+.journal-area::placeholder{color:rgba(255,255,255,.3)}
+.jentry{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:var(--rad-sm);padding:.85rem 1rem;margin-bottom:8px;
+  position:relative;transition:background .15s;
+}
+.jentry:hover{background:rgba(255,255,255,.12)}
+.je-date{font-family:'DM Mono',monospace;font-size:9px;color:var(--txt3);letter-spacing:.05em;margin-bottom:5px}
+.je-txt{font-size:11.5px;line-height:1.62;color:var(--txt2)}
+.je-emo{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;padding:2px 8px;border-radius:10px;margin-top:6px;letter-spacing:.04em}
+.je-del{position:absolute;top:9px;right:10px;font-size:11px;color:rgba(255,255,255,.25);cursor:pointer;background:none;border:none;padding:2px 5px;transition:color .14s}
+.je-del:hover{color:#fca5a5}
+.emo-focus{background:rgba(34,85,170,.3);color:#93c5fd}
+.emo-calm{background:rgba(58,138,40,.3);color:#86efac}
+.emo-neutral{background:rgba(255,255,255,.12);color:rgba(255,255,255,.7)}
+.emo-worry{background:rgba(192,112,0,.3);color:#fcd34d}
+.emo-fear{background:rgba(192,57,43,.3);color:#fca5a5}
+.emo-greed{background:rgba(255,150,0,.2);color:#fdba74}
+
+/* ── BUTTONS ── */
+.btn-save{
+  padding:8px 18px;
+  background:rgba(201,168,76,.22);
+  color:var(--gold2);
+  border:1px solid rgba(201,168,76,.5);
+  border-radius:var(--rad-xs);
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.07em;
+  cursor:pointer;transition:all .16s;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+}
+.btn-save:hover{background:rgba(201,168,76,.35);box-shadow:0 0 16px rgba(201,168,76,.25)}
+.btn-outline{
+  padding:7px 14px;
+  background:rgba(255,255,255,.08);color:var(--txt2);
+  border:1px solid rgba(255,255,255,.2);border-radius:var(--rad-xs);
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.06em;
+  cursor:pointer;transition:all .16s;
+}
+.btn-outline:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4);color:var(--txt)}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:2rem;color:var(--txt3);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.05em}
+
+/* ── LOADER ── */
+.loader{display:flex;flex-direction:column;align-items:center;gap:8px;padding:1.8rem 0}
+.spin{width:22px;height:22px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--gold2);border-radius:50%;animation:sp .72s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ── COT BARS ── */
+.cbar-w{margin-bottom:11px}
+.cbar-lbl{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9.5px;color:var(--txt3);margin-bottom:4px}
+.cbar-tr{height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden}
+.cbar-f{height:8px;border-radius:4px;transition:width 1.1s cubic-bezier(.34,1.56,.64,1)}
+.cf-long{background:linear-gradient(90deg,#3a8a28,#86efac)}
+.cf-short{background:linear-gradient(90deg,#c0392b,#fca5a5)}
+
+/* ── GAUGE ── */
+.gauge-w{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.gn{font-size:22px;font-weight:700;min-width:48px;line-height:1}
+.gn.pos{color:#86efac}.gn.neg{color:#fca5a5}
+.gtrack{flex:1;height:16px;background:rgba(255,255,255,.1);border-radius:8px;overflow:hidden;position:relative}
+.gfl{position:absolute;left:0;top:0;bottom:0;border-radius:8px 0 0 8px;background:linear-gradient(90deg,#3a8a28,#86efac);transition:width 1.1s cubic-bezier(.34,1.56,.64,1)}
+.gfs{position:absolute;right:0;top:0;bottom:0;border-radius:0 8px 8px 0;background:linear-gradient(90deg,#c0392b,#fca5a5);transition:width 1.1s cubic-bezier(.34,1.56,.64,1)}
+.gc{position:absolute;left:50%;top:0;bottom:0;width:1.5px;background:rgba(255,255,255,.3);transform:translateX(-50%)}
+.glbls{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:var(--txt3);margin-top:4px}
+
+/* ── PSYCH PILLS ── */
+.pstrip{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:11px}
+.pp{
+  font-family:'DM Mono',monospace;font-size:9.5px;padding:5px 11px;border-radius:14px;
+  cursor:pointer;border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08);color:var(--txt2);
+  transition:all .14s;user-select:none;
+}
+.pp:hover{background:rgba(255,255,255,.15);transform:scale(.97)}
+.pp.pg{background:rgba(58,138,40,.25);color:#86efac;border-color:rgba(58,138,40,.6)}
+.pp.pb{background:rgba(34,85,170,.25);color:#93c5fd;border-color:rgba(34,85,170,.6)}
+.pp.pa{background:rgba(192,112,0,.25);color:#fcd34d;border-color:rgba(192,112,0,.6)}
+.pp.pr{background:rgba(192,57,43,.25);color:#fca5a5;border-color:rgba(192,57,43,.6)}
+
+/* ── RANGE SLIDERS ── */
+input[type=range].rng{flex:1;-webkit-appearance:none;height:3px;background:linear-gradient(to right,var(--gold2) var(--pct,50%),rgba(255,255,255,.15) var(--pct,50%));border-radius:2px;outline:none;cursor:pointer}
+input[type=range].rng::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--gold2);cursor:pointer;box-shadow:0 0 6px rgba(201,168,76,.5);transition:transform .1s}
+input[type=range].rng::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.cv{font-family:'DM Mono',monospace;font-size:9px;color:var(--gold2);min-width:26px;text-align:right}
+
+/* ══════════════════════════════════════════
+   BACKGROUND GALLERY
+══════════════════════════════════════════ */
+#bg-btn{
+  position:fixed;bottom:82px;left:20px;z-index:9999;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,.12);
+  -webkit-backdrop-filter:var(--blur-sm);backdrop-filter:var(--blur-sm);
+  border:1px solid rgba(255,255,255,.25);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:18px;
+  box-shadow:0 4px 16px rgba(0,0,0,.3);
+  transition:all .2s;color:rgba(255,255,255,.8);
+}
+#bg-btn:hover{background:rgba(255,255,255,.2);transform:scale(1.08)}
+
+#bg-drawer{
+  position:fixed;bottom:0;left:0;right:0;z-index:9998;
+  background:rgba(8,8,6,.82);
+  -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border-top:1px solid rgba(255,255,255,.12);
+  padding:1rem 1.4rem 1.4rem;
+  transform:translateY(100%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
+#bg-drawer.open{transform:translateY(0)}
+.bg-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;
+}
+.bg-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.6)}
+.bg-close{font-size:14px;color:rgba(255,255,255,.4);cursor:pointer;padding:3px 7px;border-radius:4px}
+.bg-close:hover{color:rgba(255,255,255,.8)}
+.bg-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(90px,1fr));
+  gap:8px;
+  max-height:200px;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent;
+}
+.bg-thumb{
+  aspect-ratio:16/9;border-radius:8px;cursor:pointer;overflow:hidden;
+  border:2px solid transparent;transition:all .18s;position:relative;
+  background-size:cover;background-position:center;
+}
+.bg-thumb:hover{transform:scale(1.04);border-color:rgba(255,255,255,.4)}
+.bg-thumb.active{border-color:var(--gold2);box-shadow:0 0 14px rgba(201,168,76,.5)}
+.bg-thumb span{
+  position:absolute;bottom:0;left:0;right:0;
+  font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.04em;
+  color:rgba(255,255,255,.9);background:rgba(0,0,0,.5);
+  padding:3px 5px;text-align:center;
+}
+/* Dim slider */
+.bg-dim-row{display:flex;align-items:center;gap:10px;margin-top:12px}
+.bg-dim-lbl{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,.4);min-width:80px;letter-spacing:.05em}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+@media(max-width:640px){
+  .g2,.g4,.phases{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr}
+  .ticks{display:none}
+  .bg-grid{grid-template-columns:repeat(auto-fill,minmax(70px,1fr))}
+}
+</style>
+</head>
+<body>
+<div id="bg-canvas"></div>
+<div id="bg-overlay"></div>
+
+<!-- BACKGROUND GALLERY TRIGGER -->
+<div id="bg-btn" onclick="bgDrawer()" title="Cambia sfondo">🖼</div>
+
+<!-- BACKGROUND DRAWER -->
+<div id="bg-drawer">
+  <div class="bg-head">
+    <span class="bg-title">GALLERIA SFONDI</span>
+    <span class="bg-close" onclick="bgDrawer()">✕</span>
+  </div>
+  <div class="bg-grid" id="bgGrid"></div>
+  <div class="bg-dim-row">
+    <span class="bg-dim-lbl">OPACITÀ OVERLAY</span>
+    <input type="range" class="rng" id="dim-rng" min="0" max="85" value="35" style="--pct:41%;flex:1" oninput="setDim(this.value);this.style.setProperty('--pct',(this.value/85*100)+'%')">
+    <span class="cv" id="dim-v">35%</span>
+  </div>
+</div>
+<div class="bar">
+  <div class="logo">ANALISTA · PRO</div>
+  <div class="ticks">
+    <div class="tk">XAU/USD <b class="up" id="t-xau">$4,831</b></div>
+    <div class="tk">DXY <b class="dn" id="t-dxy">98.4 ↓</b></div>
+    <div class="tk">FED <b class="nt" id="t-fed">3.50%</b></div>
+    <div class="tk">CPI <b class="nt" id="t-cpi">—</b></div>
+  </div>
+  <div class="live"><div class="ldot"></div>LIVE · <span id="t-date">—</span></div>
+</div>
+<div class="geo-alert" id="geoAlert">▲ GEOPOLITICA · Iran / Stretto di Hormuz · Risk-off attivo · Premium difensivo oro confermato</div>
+
+<div class="shell">
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab on"  onclick="sw('mercato')">Mercato</div>
+  <div class="tab"     onclick="sw('macro')">Macro</div>
+  <div class="tab"     onclick="sw('mindset')">Mindset</div>
+  <div class="tab"     onclick="sw('psico')">Psicologia</div>
+  <div class="tab"     onclick="sw('ciclo')">Ciclo</div>
+  <div class="tab"     onclick="sw('sintesi')">Sintesi</div>
+</div>
+
+<!-- ══════════════════════ MERCATO ══════════════════════ -->
+<div class="panel on" id="tab-mercato">
+
+  <div class="g4">
+    <div class="mc pos"><div class="mv ct-gold">$4,831</div><div class="ml">XAU/USD</div><div class="ms ct-bull">+0.84% · $4,767–$4,890</div></div>
+    <div class="mc neg"><div class="mv">98.4</div><div class="ml">DXY</div><div class="ms ct-bear">Debole · sup. 97.8</div></div>
+    <div class="mc"><div class="mv">3.50%</div><div class="ml">FED RATE</div><div class="ms">Hold 99.5%</div></div>
+    <div class="mc pos"><div class="mv ct-gold">210k</div><div class="ml">COT NC LONG</div><div class="ms ct-bull">+4,641 sett.</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="clbl">COT Gold · 14 apr 2026 · CFTC</div>
+      <div class="cbar-w"><div class="cbar-lbl"><span>Non-Commercial LONG</span><span class="ct-bull">210,009 · 58%</span></div><div class="cbar-tr"><div class="cbar-f cf-long" style="width:0%" id="bar-ncl"></div></div></div>
+      <div class="cbar-w"><div class="cbar-lbl"><span>Non-Commercial SHORT</span><span class="ct-bear">47,483 · 13%</span></div><div class="cbar-tr"><div class="cbar-f cf-short" style="width:0%" id="bar-ncs"></div></div></div>
+      <div class="cbar-w"><div class="cbar-lbl"><span>Commercial SHORT</span><span class="ct-bear">256,839 · 71%</span></div><div class="cbar-tr"><div class="cbar-f cf-short" style="width:0%" id="bar-cs"></div></div></div>
+      <div class="cbar-w"><div class="cbar-lbl"><span>Open Interest</span><span>362,274 (+7,397)</span></div><div class="cbar-tr"><div class="cbar-f" style="width:72%;background:var(--mu);opacity:.4"></div></div></div>
+      <table class="dt" style="margin-top:10px">
+        <thead><tr><th>Categoria</th><th>Long</th><th>Short</th><th>Δ sett.</th></tr></thead>
+        <tbody>
+          <tr><td>Non-Commercial</td><td class="ct-bull">210,009</td><td class="ct-bear">47,483</td><td class="ct-bull">+4,641 / -1,580</td></tr>
+          <tr><td>Commercial</td><td>55,757</td><td class="ct-bear">256,839</td><td>-1,972 / +5,359</td></tr>
+          <tr><td>Non-Reportable</td><td>51,568</td><td>13,012</td><td>+2,451</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="clbl">Calendario · sett. 21–25 apr 2026</div>
+      <table class="dt">
+        <thead><tr><th>Data</th><th>Evento</th><th>Impatto</th></tr></thead>
+        <tbody>
+          <tr><td>Lun 21</td><td>Easter Monday — EU/UK chiusi</td><td><span class="b bx">—</span></td></tr>
+          <tr><td>Mar 22</td><td>PMI Manifatturiero USA</td><td><span class="b ba">MEDIO</span></td></tr>
+          <tr><td>Mar 22</td><td>PMI Servizi USA</td><td><span class="b ba">MEDIO</span></td></tr>
+          <tr><td>Gio 24</td><td>Jobless Claims settimanali</td><td><span class="b br">ALTO</span></td></tr>
+          <tr><td>Gio 24</td><td>Durable Goods Orders</td><td><span class="b br">ALTO</span></td></tr>
+          <tr><td>Ven 25</td><td>Michigan Sentiment + Inflaz. attese</td><td><span class="b br">ALTO ★</span></td></tr>
+          <tr><td>Mag 2</td><td>NFP Aprile</td><td><span class="b br">ALTO ★</span></td></tr>
+          <tr><td>Mag 6–7</td><td>FOMC Meeting</td><td><span class="b br">ALTO ★</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clbl">XAU/USD · storico 9 mesi</div>
+    <div class="cw"><canvas id="xauChart" role="img" aria-label="XAU/USD luglio 2025 – aprile 2026">Prezzo oro</canvas></div>
+    <div style="display:flex;gap:14px;font-family:'DM Mono',monospace;font-size:9px;color:var(--mu)">
+      <span>Min 52s: $3,120</span><span>Max 52s (ATH): $5,595 gen'26</span><span>Attuale: $4,831 (−13.7% ATH)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ MACRO ══════════════════════ -->
+<div class="panel" id="tab-macro">
+
+  <div class="g4">
+    <div class="mc warn"><div class="mv ct-gold" id="cpi-val">—</div><div class="ml">CPI USA YoY</div><div class="ms" id="cpi-per">—</div></div>
+    <div class="mc warn"><div class="mv" id="cpi-tr">—</div><div class="ml">Trend CPI 3m</div><div class="ms" id="cpi-tr2">—</div></div>
+    <div class="mc"><div class="mv">3.50%</div><div class="ml">FED Rate</div><div class="ms">Hold 99.5%</div></div>
+    <div class="mc" id="rr-card"><div class="mv" id="rr-val">—</div><div class="ml">Tasso Reale</div><div class="ms" id="rr-lbl">CPI − Fed</div></div>
+  </div>
+
+  <div class="card">
+    <div class="clbl">Inflazione USA · World Bank · 24 mesi</div>
+    <div id="cpi-load" class="loader"><div class="spin"></div></div>
+    <div id="cpi-err" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--bear);padding:.5rem">Connessione non riuscita · dati di fallback</div>
+    <div class="cw" id="cpi-ww" style="display:none"><canvas id="cpiChart" role="img" aria-label="CPI USA storico">CPI</canvas></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="clbl">Inflazione & Lavoro</div>
+      <div class="fr"><div class="fl">CPI (da API)</div><select id="s-cpi" onchange="calcMacro()"><option value="0">Deflazione</option><option value="1">1–3%</option><option value="2" selected>3–5%</option><option value="3">5–10%</option><option value="4">&gt;10%</option></select></div>
+      <div class="fr"><div class="fl">Trend CPI</div><select id="s-cpiT" onchange="calcMacro()"><option value="-1">In calo</option><option value="0" selected>Stabile</option><option value="1">In rialzo</option></select></div>
+      <div class="fr"><div class="fl">Crescita salariale</div><select id="s-wages" onchange="calcMacro()"><option value="0">Debole</option><option value="1" selected>Moderata</option><option value="2">Forte</option></select></div>
+    </div>
+    <div class="card">
+      <div class="clbl">Dollaro & Fed</div>
+      <div class="fr"><div class="fl">DXY · live: 98.4</div><select id="s-dxy" onchange="calcMacro()"><option value="-2">Molto debole &lt;99</option><option value="-1" selected>Debole 99–101</option><option value="0">Neutro 101–103</option><option value="1">Forte 103+</option></select></div>
+      <div class="fr"><div class="fl">Aspettativa Fed</div><select id="s-fedE" onchange="calcMacro()"><option value="-2">Tagli aggressivi</option><option value="-1">Tagli moderati</option><option value="0" selected>Hold</option><option value="1">Rialzo possibile</option></select></div>
+      <div class="fr"><div class="fl">Geopolitica</div><select id="s-geo" onchange="calcMacro()"><option value="0">Bassa</option><option value="1">Moderata</option><option value="2">Elevata</option><option value="3" selected>Crisi acuta</option></select></div>
+    </div>
+  </div>
+  <div id="macro-v" class="v vneu"><div class="vt">—</div><div class="vb">—</div></div>
+</div>
+
+<!-- ══════════════════════ MINDSET ══════════════════════ -->
+<div class="panel" id="tab-mindset">
+
+  <!-- QUOTE ROTATOR -->
+  <div class="quote-card">
+    <div class="qtext" id="q-text">Il vero lavoro nel trading non è sul mercato, ma dentro di te.</div>
+    <div class="qsrc" id="q-src">Mindset da Trader · Principio Fondamentale</div>
+    <div class="qnav">
+      <button class="qbtn" onclick="prevQ()">← prev</button>
+      <span class="qcount" id="q-n">1/8</span>
+      <button class="qbtn" onclick="nextQ()">next →</button>
+    </div>
+  </div>
+
+  <div class="g2">
+    <!-- TIPO DI MINDSET -->
+    <div class="card">
+      <div class="clbl">Il tuo mindset attuale</div>
+      <div class="mtype mt-f" id="mt-fisso" onclick="selMT('fisso')">
+        <div class="mt-title">Mindset Fisso</div>
+        <div class="mt-desc">Credi che le tue capacità siano statiche. Eviti sfide. Una perdita = prova di incompetenza. "Non sono tagliato per questo."</div>
+      </div>
+      <div class="mtype mt-g" id="mt-crescita" onclick="selMT('crescita')">
+        <div class="mt-title">Mindset di Crescita</div>
+        <div class="mt-desc">Credi di poter imparare attraverso lo sforzo. Ogni perdita è informazione. Un trade eseguito bene ma perso è una vittoria.</div>
+      </div>
+      <div class="mtype mt-b" id="mt-beneficio" onclick="selMT('beneficio')">
+        <div class="mt-title">Mindset di Beneficio</div>
+        <div class="mt-desc">Usi la tua crescita per fare la differenza. L'obiettivo non è solo il profitto, ma migliorare i mercati e aiutare chi viene dopo.</div>
+      </div>
+      <div id="mt-feedback" class="v vneu" style="margin-top:10px;display:none"><div class="vt">—</div><div class="vb">—</div></div>
+    </div>
+
+    <!-- 4 PILASTRI -->
+    <div class="card">
+      <div class="clbl">I 4 pilastri del professionista</div>
+      <div class="pillar"><div class="p-num">01</div><div class="p-body"><div class="p-title">Mentalità Probabilistica</div><div class="p-desc">Pensi in probabilità, non certezze. Il 35-40% di perdite è statisticamente normale. Nessuna perdita è un fallimento personale.</div></div></div>
+      <div class="pillar"><div class="p-num">02</div><div class="p-body"><div class="p-title">Focus sul Processo</div><div class="p-desc">"Ho seguito il piano? Ho rispettato i criteri? Ho gestito il rischio?" Sì = vittoria, indipendentemente dal P&L.</div></div></div>
+      <div class="pillar"><div class="p-num">03</div><div class="p-body"><div class="p-title">Disciplina Assoluta</div><div class="p-desc">Regole precise per entrare, uscire, dimensionare, fermarsi. Seguite sempre, anche quando ogni fibra del corpo dice diversamente.</div></div></div>
+      <div class="pillar"><div class="p-num">04</div><div class="p-body"><div class="p-title">Apprendimento Continuo</div><div class="p-desc">Ogni trade analizzato per le lezioni, non solo per il P&L. Diario dettagliato. Studio strutturato e mirato, non casuale.</div></div></div>
+    </div>
+  </div>
+
+  <!-- CHECKLIST MINDSET -->
+  <div class="card">
+    <div class="clbl">Check pre-sessione · stato mentale</div>
+    <div id="mindset-checks">
+      <div class="mcheck"><input type="checkbox" id="mc1" onchange="scoreMC()"><label for="mc1">Ho dormito almeno 7 ore. Sono fisicamente riposato.</label></div>
+      <div class="mcheck"><input type="checkbox" id="mc2" onchange="scoreMC()"><label for="mc2">Oggi non ho urgenza emotiva di recuperare perdite precedenti.</label></div>
+      <div class="mcheck"><input type="checkbox" id="mc3" onchange="scoreMC()"><label for="mc3">Il mio piano di trading è scritto e chiaro prima di aprire i grafici.</label></div>
+      <div class="mcheck"><input type="checkbox" id="mc4" onchange="scoreMC()"><label for="mc4">Ho accettato che posso perdere su questo trade senza problemi.</label></div>
+      <div class="mcheck"><input type="checkbox" id="mc5" onchange="scoreMC()"><label for="mc5">Non sto operando per paura di perdere un'opportunità (FOMO).</label></div>
+      <div class="mcheck"><input type="checkbox" id="mc6" onchange="scoreMC()"><label for="mc6">Il mio stop-loss è impostato prima dell'entrata, non dopo.</label></div>
+      <div class="mcheck"><input type="checkbox" id="mc7" onchange="scoreMC()"><label for="mc7">Posso fermarmi dopo 2 perdite consecutive senza cercare "la rivincita".</label></div>
+    </div>
+    <div id="mc-result" class="v vneu" style="margin-top:10px"><div class="vt">—</div><div class="vb">—</div></div>
+  </div>
+
+  <!-- DIARIO MENTALE -->
+  <div class="card">
+    <div class="clbl">Diario mentale · sessione</div>
+    <div class="emo-sel" id="emo-sel">
+      <button class="emo-btn" onclick="selEmo(event,'focus','FOCUS')">🧠 Focus</button>
+      <button class="emo-btn" onclick="selEmo(event,'calm','CALMO')">😌 Calmo</button>
+      <button class="emo-btn" onclick="selEmo(event,'neutral','NEUTRO')">😐 Neutro</button>
+      <button class="emo-btn" onclick="selEmo(event,'worry','PREOCCUPATO')">😟 Preoccupato</button>
+      <button class="emo-btn" onclick="selEmo(event,'fear','PAURA')">😰 Paura</button>
+      <button class="emo-btn" onclick="selEmo(event,'greed','AVIDITÀ')">🔥 Avidità</button>
+    </div>
+    <textarea class="journal-area" id="j-area" placeholder="Scrivi pensieri, emozioni, osservazioni sulla sessione…"></textarea>
+    <div class="action-row">
+      <button class="btn-save" onclick="saveEntry()">SALVA VOCE</button>
+      <button class="btn-outline" onclick="exportJournal()">ESPORTA</button>
+      <span class="count-lbl" id="j-count">0 voci salvate</span>
+    </div>
+  </div>
+
+  <!-- STORICO DIARIO -->
+  <div class="card">
+    <div class="clbl">Storico · ultime voci</div>
+    <div id="j-list"><div class="empty">Nessuna voce salvata. Scrivi la prima nota sopra.</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ PSICOLOGIA ══════════════════════ -->
+<div class="panel" id="tab-psico">
+
+  <!-- MYFXBOOK LIVE -->
+  <div class="card">
+    <div class="clbl">Sentiment retail · XAU/USD</div>
+    <div id="fx-load" class="loader"><div class="spin"></div></div>
+    <div id="fx-body" style="display:none">
+      <div class="gauge-w">
+        <div class="gn pos" id="fx-lp">60%</div>
+        <div style="flex:1">
+          <div class="gtrack"><div class="gfl" id="gfl" style="width:0%"></div><div class="gfs" id="gfs" style="width:0%"></div><div class="gc"></div></div>
+          <div class="glbls"><span class="ct-bull">LONG</span><span>retail verificato · aggiornato 60s</span><span class="ct-bear">SHORT</span></div>
+        </div>
+        <div class="gn neg" id="fx-sp">40%</div>
+      </div>
+      <div class="g3">
+        <div class="mc pos"><div class="mv ct-bull" id="fx-lv">60%</div><div class="ml">Long</div><div class="ms" id="fx-la">entry $4,751</div></div>
+        <div class="mc neg"><div class="mv ct-bear" id="fx-sv">40%</div><div class="ml">Short</div><div class="ms" id="fx-sa">entry $4,346</div></div>
+        <div class="mc warn"><div class="mv ct-gold" id="fx-sig">—</div><div class="ml">Contrarian</div><div class="ms" id="fx-ss">—</div></div>
+      </div>
+      <div id="fx-v" class="v vneu"><div class="vt">—</div><div class="vb">—</div></div>
+    </div>
+  </div>
+
+  <!-- SESSION KEY -->
+  <div class="card">
+    <div class="clbl">Connetti account Myfxbook</div>
+    <div class="fr"><div class="fl">Session Token (gratuito · login su myfxbook.com → API)</div>
+      <div class="fx-key-row">
+        <input type="text" id="fx-key" placeholder="123456-AbCdEf…">
+        <button class="btn-save" onclick="fetchFXKey()">CONNETTI</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CICLO PSICOLOGICO -->
+  <div class="card">
+    <div class="clbl">Ciclo psicologico · seleziona il sentiment</div>
+    <div class="pstrip" id="pstrip"></div>
+    <div id="psych-d" class="v vneu"><div class="vt">Seleziona la fase emotiva del mercato</div><div class="vb">—</div></div>
+  </div>
+
+  <!-- COT vs SENTIMENT -->
+  <div class="card">
+    <div class="clbl">Triangolazione · COT vs retail</div>
+    <table class="dt">
+      <thead><tr><th>Indicatore</th><th>Dato</th><th>Lettura</th><th>Implicazione operativa</th></tr></thead>
+      <tbody>
+        <tr><td>NC Long (COT)</td><td class="ct-bull">210,009 · 58%</td><td><span class="b bg">Speculatori LONG</span></td><td>Posizione elevata — attenzione inversione rapida</td></tr>
+        <tr><td>NC Short (COT)</td><td>47,483 · 13%</td><td><span class="b bx">Basso</span></td><td>Poco contrarian — momentum rialzista attivo</td></tr>
+        <tr><td>Retail Long</td><td class="ct-bull" id="ct-l">60%</td><td><span class="b ba">FOMO parziale</span></td><td>Non ancora euforia — monitorare nelle prossime sessioni</td></tr>
+        <tr><td>Retail Short</td><td class="ct-bear" id="ct-s">40%</td><td><span class="b br">Copertura</span></td><td>Liquidità short per potenziale squeeze</td></tr>
+        <tr><td>Commercial SHORT</td><td class="ct-bear">256,839 · 71%</td><td><span class="b ba">Hedging</span></td><td>Produttori si coprono — non segnale bear puro</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════ CICLO ══════════════════════ -->
+<div class="panel" id="tab-ciclo">
+  <div class="phases" id="phaseGrid">
+    <div class="ph ph1" onclick="selPhase(0)"><div class="ph-t">FASE 1 — ACCUMULO</div><div class="ph-s">Fine ribassista. DCA silenzioso nelle zone di congestione.</div></div>
+    <div class="ph ph2" onclick="selPhase(1)"><div class="ph-t">FASE 2 — ASCESA</div><div class="ph-s">Mark-up. Retail entra. Volume in crescita.</div></div>
+    <div class="ph ph3" onclick="selPhase(2)"><div class="ph-t">FASE 3 — DISTRIBUZIONE</div><div class="ph-s">Massimi. Istituzionali scaricano. Retail euforico.</div></div>
+    <div class="ph ph4" onclick="selPhase(3)"><div class="ph-t">FASE 4 — DECLINO</div><div class="ph-s">Mark-down. Short istituz. Retail in panico.</div></div>
+  </div>
+  <div id="phase-d" style="display:none"></div>
+
+  <div class="card">
+    <div class="clbl">Lettura live · apr 2026</div>
+    <div class="ins">Con XAU/USD a $4,831 (−13.7% ATH), COT NC long a 210k e retail al 60% long, il mercato si trova in <strong>transizione Fase 2→3</strong>. Commercial short al 71% confermano hedging massiccio. Geopolitica Iran mantiene il premium difensivo attivo, sostenendo artificialmente il prezzo.</div>
+    <table class="dt">
+      <thead><tr><th>Indicatore</th><th>Accumulo</th><th>Ascesa</th><th>Distribuzione</th><th>Declino</th></tr></thead>
+      <tbody>
+        <tr><td>COT Commercial</td><td><span class="b bg">Long ↑</span></td><td><span class="b bb">→</span></td><td><span class="b ba">Short ↑</span></td><td><span class="b br">Short ↑↑</span></td></tr>
+        <tr><td>COT Non-Comm.</td><td><span class="b br">Short</span></td><td><span class="b bg">Long ↑</span></td><td><span class="b bg">Long ↑↑</span></td><td><span class="b br">Short ↑</span></td></tr>
+        <tr><td>Retail MyFX</td><td>&lt;35% long</td><td>35–55%</td><td>&gt;60%</td><td>panico</td></tr>
+        <tr><td><strong>Oggi</strong></td><td colspan="4" class="ct-bull"><strong>NC Long 58% + Retail 60% + Comm Short 71% → F2/F3</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════ SINTESI ══════════════════════ -->
+<div class="panel" id="tab-sintesi">
+  <div class="ring-row" id="ringRow">
+    <div class="ri">
+      <svg width="82" height="82" viewBox="0 0 82 82">
+        <circle cx="41" cy="41" r="33" fill="none" stroke="#e8e6de" stroke-width="7"/>
+        <circle id="r1" cx="41" cy="41" r="33" fill="none" stroke="var(--bull)" stroke-width="7"
+          stroke-dasharray="207.3" stroke-dashoffset="207.3" stroke-linecap="round" transform="rotate(-90 41 41)"
+          style="transition:stroke-dashoffset 1.2s cubic-bezier(.34,1.56,.64,1)"/>
+      </svg>
+      <div class="rv ct-bull" id="rv1">—</div><div class="rl">MACRO</div>
+    </div>
+    <div class="ri">
+      <svg width="82" height="82" viewBox="0 0 82 82">
+        <circle cx="41" cy="41" r="33" fill="none" stroke="#e8e6de" stroke-width="7"/>
+        <circle id="r2" cx="41" cy="41" r="33" fill="none" stroke="var(--gold)" stroke-width="7"
+          stroke-dasharray="207.3" stroke-dashoffset="207.3" stroke-linecap="round" transform="rotate(-90 41 41)"
+          style="transition:stroke-dashoffset 1.2s cubic-bezier(.34,1.56,.64,1) .1s"/>
+      </svg>
+      <div class="rv ct-gold" id="rv2">—</div><div class="rl">SENTIMENT</div>
+    </div>
+    <div class="ri">
+      <svg width="82" height="82" viewBox="0 0 82 82">
+        <circle cx="41" cy="41" r="33" fill="none" stroke="#e8e6de" stroke-width="7"/>
+        <circle id="r3" cx="41" cy="41" r="33" fill="none" stroke="var(--blue)" stroke-width="7"
+          stroke-dasharray="207.3" stroke-dashoffset="207.3" stroke-linecap="round" transform="rotate(-90 41 41)"
+          style="transition:stroke-dashoffset 1.2s cubic-bezier(.34,1.56,.64,1) .2s"/>
+      </svg>
+      <div class="rv" style="color:var(--blue)" id="rv3">—</div><div class="rl">CICLO</div>
+    </div>
+    <div class="ri">
+      <svg width="82" height="82" viewBox="0 0 82 82">
+        <circle cx="41" cy="41" r="33" fill="none" stroke="#e8e6de" stroke-width="7"/>
+        <circle id="r4" cx="41" cy="41" r="33" fill="none" stroke="var(--gold)" stroke-width="7"
+          stroke-dasharray="207.3" stroke-dashoffset="207.3" stroke-linecap="round" transform="rotate(-90 41 41)"
+          style="transition:stroke-dashoffset 1.2s cubic-bezier(.34,1.56,.64,1) .15s"/>
+      </svg>
+      <div class="rv ct-gold" id="rv4">—</div><div class="rl">MINDSET</div>
+    </div>
+    <div class="ri">
+      <svg width="106" height="106" viewBox="0 0 106 106">
+        <circle cx="53" cy="53" r="44" fill="none" stroke="#e8e6de" stroke-width="9"/>
+        <circle id="r0" cx="53" cy="53" r="44" fill="none" stroke="var(--gold)" stroke-width="9"
+          stroke-dasharray="276.5" stroke-dashoffset="276.5" stroke-linecap="round" transform="rotate(-90 53 53)"
+          style="transition:stroke-dashoffset 1.4s cubic-bezier(.34,1.56,.64,1) .3s"/>
+      </svg>
+      <div style="font-size:24px;font-weight:700;color:var(--gold)" id="rv0">—</div><div class="rl">TOTALE /10</div>
+    </div>
+  </div>
+
+  <div id="syn-v" class="v vneu"><div class="vt">Calibra Macro + Ciclo + Psicologia + Mindset</div><div class="vb">Completa le sezioni per generare la sintesi operativa.</div></div>
+
+  <div class="g2">
+    <div class="card"><div class="clbl">Checklist · questa settimana</div><ul class="chk" id="syn-chk"><li><div class="d da"></div>Completa le sezioni per la checklist.</li></ul></div>
+    <div class="card">
+      <div class="clbl">Scenario live · apr 2026</div>
+      <ul class="chk">
+        <li><div class="d dg"></div>XAU/USD $4,831 · +0.84% · range $4,767–4,890</li>
+        <li><div class="d dg"></div>COT NC Long 210k (+4.6k) · bias speculativo rialzista</li>
+        <li><div class="d dg"></div>DXY 98.4 debole → favorevole per oro non-USD</li>
+        <li><div class="d da"></div>Fed hold 99.5% · nessun catalizzatore tassi vicino</li>
+        <li><div class="d da"></div>Retail 60% long · FOMO parziale attiva</li>
+        <li><div class="d dr"></div>ATH $5,595 · −13.7% · non in recupero immediato</li>
+        <li><div class="d dr"></div>Commercial short 71% · hedging elevato</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clbl">Salva analisi nel database</div>
+    <div class="action-row">
+      <button class="btn-save" onclick="saveAnalysis()">SALVA ANALISI</button>
+      <button class="btn-outline" onclick="exportDB()">ESPORTA DB</button>
+      <button class="btn-outline" onclick="clearDB()">SVUOTA DB</button>
+      <span class="count-lbl" id="db-count">0 analisi salvate</span>
+    </div>
+    <div id="db-list" style="margin-top:10px"></div>
+  </div>
+</div>
+
+</div><!-- shell -->
+
+<!-- ══════════════════════════════════════════════════════
+     SOUND ENGINE — fixed bottom right
+══════════════════════════════════════════════════════ -->
+<style>
+#spill{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+#stgl{width:48px;height:48px;border-radius:50%;background:var(--ink);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.25);transition:all .2s;font-size:19px;color:var(--g2);position:relative}
+#stgl:hover{transform:scale(1.07)}
+#stgl.on{background:rgba(201,168,76,.15);border-color:var(--g2)}
+#stgl.on::after{content:'';position:absolute;inset:-6px;border-radius:50%;border:1px solid var(--gold);animation:rp2 1.8s ease infinite;pointer-events:none}
+@keyframes rp2{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.55);opacity:0}}
+#spanel{background:#090908;border:1px solid #252520;border-radius:14px;width:294px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.5);transform-origin:bottom right;transition:transform .25s cubic-bezier(.34,1.56,.64,1),opacity .2s}
+#spanel.h{transform:scale(.84) translateY(8px);opacity:0;pointer-events:none}
+.sh{padding:.72rem 1rem;border-bottom:1px solid #1a1a16;display:flex;align-items:center;justify-content:space-between}
+.stit{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--g2);display:flex;align-items:center;gap:6px}
+.sdot{width:5px;height:5px;border-radius:50%;background:#333}.sdot.on{background:#4ade80;box-shadow:0 0 4px #4ade80;animation:bl 2s infinite}
+.sclose{font-size:12px;color:#444;cursor:pointer;padding:2px 6px;border-radius:3px}.sclose:hover{color:#888}
+.sviz{height:42px;padding:6px 10px 0;display:flex;align-items:flex-end;gap:2px}
+.svb{flex:1;border-radius:2px 2px 0 0;background:var(--gold);opacity:.18;transition:height .07s ease}.svb.on{opacity:.95}
+.smg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:9px}
+.smb{padding:8px 5px;border-radius:8px;border:1px solid #1c1c18;background:#0e0e0c;cursor:pointer;text-align:center;transition:all .15s}
+.smb:hover{border-color:#333}.smb.sel{border-color:var(--gold);background:rgba(184,146,42,.09)}
+.smb-i{font-size:14px;display:block;margin-bottom:2px}.smb-n{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.04em;color:var(--g2);display:block}.smb-h{font-size:8.5px;color:#3a3a36}
+.smb.sel .smb-h{color:#666}
+.snoise{padding:0 10px 8px}
+.snl{font-family:'DM Mono',monospace;font-size:8px;color:#2a2a24;letter-spacing:.07em;margin-bottom:4px}
+.snrow{display:flex;gap:4px}
+.snp{font-family:'DM Mono',monospace;font-size:8.5px;padding:3px 8px;border-radius:9px;border:1px solid #1c1c18;color:#3a3a36;cursor:pointer;background:#0e0e0c;transition:all .14s}
+.snp:hover{border-color:#333;color:#666}.snp.sel{border-color:var(--gold);color:var(--g2);background:rgba(184,146,42,.07)}
+.sctrl{padding:7px 10px;border-top:1px solid #111}
+.scr{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.scl{font-family:'DM Mono',monospace;font-size:8px;color:#3a3a36;min-width:52px;letter-spacing:.04em}
+.splay{padding:0 10px 10px}
+.spb{width:100%;padding:8px;border-radius:7px;background:transparent;border:1px solid #1a1a14;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.07em;color:#555;cursor:pointer;transition:all .16s;display:flex;align-items:center;justify-content:center;gap:7px}
+.spb:hover{border-color:var(--gold);color:var(--g2)}.spb.on{background:rgba(184,146,42,.07);border-color:var(--gold);color:var(--g2)}
+.stmr{font-family:'DM Mono',monospace;font-size:8.5px;color:#2a2a24;text-align:center;padding-bottom:6px;letter-spacing:.04em}
+.sfi{padding:7px 10px 9px;font-family:'DM Mono',monospace;font-size:9px;color:#3a3a36;line-height:1.6;border-top:1px solid #111}
+.sfi strong{color:#666}
+</style>
+
+<div id="spill">
+  <div id="spanel" class="h">
+    <div class="sh"><div class="stit"><div class="sdot" id="sdot"></div>SOUND FOCUS</div><div class="sclose" onclick="sPanelToggle()">✕</div></div>
+    <div class="sviz" id="sviz"></div>
+    <div class="smg">
+      <div class="smb sel" onclick="sSetMode('gamma')" id="sm-gamma"><span class="smb-i">⚡</span><span class="smb-n">FOCUS MAX</span><span class="smb-h">Gamma 40Hz</span></div>
+      <div class="smb" onclick="sSetMode('beta')" id="sm-beta"><span class="smb-i">◎</span><span class="smb-n">FOCUS</span><span class="smb-h">Beta 18Hz</span></div>
+      <div class="smb" onclick="sSetMode('alpha')" id="sm-alpha"><span class="smb-i">〜</span><span class="smb-n">ALPHA</span><span class="smb-h">Alpha 10Hz</span></div>
+      <div class="smb" onclick="sSetMode('theta')" id="sm-theta"><span class="smb-i">◌</span><span class="smb-n">RELAX</span><span class="smb-h">Theta 6Hz</span></div>
+      <div class="smb" onclick="sSetMode('432')" id="sm-432"><span class="smb-i">✦</span><span class="smb-n">432 Hz</span><span class="smb-h">Solfeggio</span></div>
+      <div class="smb" onclick="sSetMode('528')" id="sm-528"><span class="smb-i">✧</span><span class="smb-n">528 Hz</span><span class="smb-h">Miracle</span></div>
+    </div>
+    <div class="snoise"><div class="snl">NOISE</div><div class="snrow">
+      <div class="snp sel" onclick="sSetNoise('none')" id="sn-none">NESSUNO</div>
+      <div class="snp" onclick="sSetNoise('brown')" id="sn-brown">BROWN</div>
+      <div class="snp" onclick="sSetNoise('pink')" id="sn-pink">PINK</div>
+      <div class="snp" onclick="sSetNoise('white')" id="sn-white">WHITE</div>
+    </div></div>
+    <div class="sctrl">
+      <div class="scr"><span class="scl">VOLUME</span><input type="range" class="rng" id="svol" min="0" max="100" value="55" oninput="sSetVol(this.value);this.style.setProperty('--pct',this.value+'%')" style="--pct:55%"><span class="cv" id="svol-v">55</span></div>
+      <div class="scr"><span class="scl">NOISE MIX</span><input type="range" class="rng" id="snmix" min="0" max="100" value="25" oninput="sSetNMix(this.value);this.style.setProperty('--pct',this.value+'%')" style="--pct:25%"><span class="cv" id="snmix-v">25</span></div>
+      <div class="scr"><span class="scl">CARRIER</span><input type="range" class="rng" id="scar" min="80" max="400" value="200" oninput="sSetCar(this.value);this.style.setProperty('--pct',((this.value-80)/320*100)+'%')" style="--pct:37%"><span class="cv" id="scar-v">200</span></div>
+    </div>
+    <div class="splay"><div class="spb" id="spb" onclick="sTogglePlay()"><span id="spi">▶</span><span id="spt">AVVIA</span></div></div>
+    <div class="stmr" id="stmr">00:00</div>
+    <div class="sfi" id="sfi"><strong>⚡ Gamma 40Hz</strong> — Concentrazione massima. Elaborazione cognitiva rapida. Usa le cuffie per i binaural beats.</div>
+  </div>
+  <div id="stgl" onclick="sPanelToggle()">♫</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+'use strict';
+// ═══════════ DB INTERNO (localStorage) ═══════════
+const DB = {
+  get(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return []}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){console.warn('Storage:',e)}},
+};
+let analyses = DB.get('analyses');
+let journal   = DB.get('journal');
+let selectedEmo = null;
+
+// ═══════════ TOPBAR DATE ═══════════
+(function(){
+  const d=new Date();
+  document.getElementById('t-date').textContent =
+    d.toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'});
+})();
+
+// ═══════════ TABS ═══════════
+function sw(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  const map={mercato:0,macro:1,mindset:2,psico:3,ciclo:4,sintesi:5};
+  document.querySelectorAll('.tab')[map[id]].classList.add('on');
+  document.getElementById('tab-'+id).classList.add('on');
+  if(id==='sintesi') setTimeout(animateRings,80);
+}
+
+// ═══════════ XAU CHART ═══════════
+(function(){
+  const ctx=document.getElementById('xauChart').getContext('2d');
+  new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:['Lug','Ago','Set','Ott','Nov','Dic','Gen','Feb','Mar','Apr'],
+      datasets:[{
+        data:[3290,3448,3863,4002,4222,4315,5595,5100,4700,4831],
+        borderColor:'#b8922a',borderWidth:2,pointRadius:3,
+        pointBackgroundColor:['#b8922a','#b8922a','#b8922a','#b8922a','#b8922a','#b8922a','#e2b84a','#b8922a','#b8922a','#b8922a'],
+        fill:true,backgroundColor:(ctx)=>{
+          const g=ctx.chart.ctx.createLinearGradient(0,0,0,150);
+          g.addColorStop(0,'rgba(201,168,76,.15)');g.addColorStop(1,'rgba(201,168,76,.01)');return g;
+        },tension:.38
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'$'+c.parsed.y.toLocaleString()}}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.08)'},ticks:{font:{size:9},color:'rgba(255,255,255,.45)'}},
+        y:{grid:{color:'rgba(255,255,255,.08)'},ticks:{font:{size:9},color:'rgba(255,255,255,.45)',callback:v=>'$'+v.toLocaleString()}}
+      }
+    }
+  });
+})();
+
+// ═══════════ ANIMATE COT BARS ═══════════
+setTimeout(()=>{
+  document.getElementById('bar-ncl').style.width='58%';
+  document.getElementById('bar-ncs').style.width='13%';
+  document.getElementById('bar-cs').style.width='71%';
+},200);
+
+// ═══════════ WORLD BANK CPI ═══════════
+let macroScore=5;
+let cpiChart=null;
+
+async function fetchCPI(){
+  const url='https://api.worldbank.org/v2/country/US/indicator/FP.CPI.TOTL.ZG?format=json&mrv=12&per_page=12';
+  const ac=new AbortController();
+  const tid=setTimeout(()=>ac.abort(),8000);
+  try{
+    const r=await fetch(url,{signal:ac.signal});
+    clearTimeout(tid);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    if(!d[1]||!d[1].length)throw new Error('No data');
+    const obs=d[1].filter(x=>x.value!==null).sort((a,b)=>b.date-a.date);
+    if(!obs.length)throw new Error('Empty');
+
+    const cpi=parseFloat(obs[0].value).toFixed(2);
+    document.getElementById('cpi-val').textContent=cpi+'%';
+    document.getElementById('cpi-per').textContent=obs[0].date;
+    document.getElementById('t-cpi').textContent='CPI '+cpi+'%';
+
+    const t3=[obs[0],obs[1],obs[2]].filter(Boolean).map(x=>parseFloat(x.value));
+    const dir=t3[0]>t3[t3.length-1]?'↑ Rialzo':t3[0]<t3[t3.length-1]?'↓ Calo':'→ Stabile';
+    document.getElementById('cpi-tr').textContent=dir.split(' ')[1]||dir;
+    document.getElementById('cpi-tr2').textContent=(t3[0]-t3[t3.length-1]).toFixed(2)+'% (3 periodi)';
+
+    const rr=(parseFloat(cpi)-3.5).toFixed(2);
+    document.getElementById('rr-val').textContent=(rr>0?'+':'')+rr+'%';
+    document.getElementById('rr-lbl').textContent=parseFloat(rr)<0?'Negativo → oro favorito':'Positivo → bond competono';
+    document.getElementById('rr-card').className='mc '+(parseFloat(rr)<0?'pos':'neg');
+
+    // Auto-set selects
+    const cv=parseFloat(cpi);
+    const sel=document.getElementById('s-cpi');
+    sel.value=cv<0?0:cv<3?1:cv<5?2:cv<10?3:4;
+    const tsel=document.getElementById('s-cpiT');
+    tsel.value=t3[0]>t3[t3.length-1]+0.2?1:t3[0]<t3[t3.length-1]-0.2?-1:0;
+
+    buildCPIChart(obs.map(x=>x.date).reverse(),obs.map(x=>parseFloat(x.value).toFixed(2)).reverse());
+    document.getElementById('cpi-load').style.display='none';
+    document.getElementById('cpi-ww').style.display='block';
+    calcMacro();
+  }catch(e){
+    document.getElementById('cpi-load').style.display='none';
+    document.getElementById('cpi-err').style.display='block';
+    document.getElementById('cpi-ww').style.display='block';
+    buildCPIChart(
+      ['2024Q1','Q2','Q3','Q4','2025Q1','Q2','Q3','Q4','2026Q1'],
+      [3.5,3.3,2.6,2.9,2.8,2.6,2.7,2.9,2.6]
+    );
+    document.getElementById('cpi-val').textContent='2.6%';
+    document.getElementById('cpi-per').textContent='Fallback';
+    calcMacro();
+  }
+}
+
+function buildCPIChart(labels,vals){
+  if(cpiChart)cpiChart.destroy();
+  const ctx=document.getElementById('cpiChart').getContext('2d');
+  const nums=vals.map(Number);
+  cpiChart=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'CPI USA YoY%',data:nums,borderColor:'#b8922a',borderWidth:2,
+          pointRadius:4,
+          pointBackgroundColor:nums.map(v=>v>=3?'#7a1818':v>=2?'#b8922a':'#2a6119'),
+          fill:true,backgroundColor:(ctx)=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,150);g.addColorStop(0,'rgba(201,168,76,.15)');g.addColorStop(1,'rgba(201,168,76,.01)');return g;},tension:.4},
+        {label:'Target 2%',data:new Array(labels.length).fill(2),borderColor:'rgba(134,239,172,.3)',borderWidth:1,borderDash:[4,4],pointRadius:0,fill:false}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.08)'},ticks:{font:{size:9},color:'rgba(255,255,255,.45)',maxRotation:40}},
+        y:{grid:{color:'rgba(255,255,255,.08)'},ticks:{font:{size:9},color:'rgba(255,255,255,.45)',callback:v=>v+'%'},min:0,max:5}
+      }
+    }
+  });
+}
+
+// ═══════════ MACRO CALC ═══════════
+function vi(id){const e=document.getElementById(id);return e?parseInt(e.value):0;}
+function calcMacro(){
+  const sI=Math.min(10,Math.max(0,vi('s-cpi')*1.8+vi('s-cpiT')*1.2+vi('s-wages')*.6));
+  const sU=Math.min(10,Math.max(0,(-vi('s-dxy'))*2.5+5));
+  const sR=Math.min(10,Math.max(0,(-vi('s-fedE'))*2+5));
+  const sG=Math.min(10,Math.max(0,vi('s-geo')*3));
+  macroScore=(sI+sU+sR+sG)/4;
+
+  const mv=document.getElementById('macro-v');
+  let cls,vt,vb;
+  if(macroScore>=7){cls='vbull';vt='Contesto rialzista ('+macroScore.toFixed(1)+'/10)';vb='Inflazione moderata, DXY debole e crisi geopolitica attiva creano vento strutturale favorevole. Tasso reale marginale azzera il costo opportunità dell\'oro.';}
+  else if(macroScore<=3.5){cls='vbear';vt='Contesto ribassista ('+macroScore.toFixed(1)+'/10)';vb='Tassi reali positivi, dollaro forte e bassa tensione aumentano il costo opportunità. I bond diventano competitivi rispetto all\'oro.';}
+  else if(macroScore<=5.5){cls='vwarn';vt='Scenario misto ('+macroScore.toFixed(1)+'/10)';vb='Fattori contrapposti. Michigan Sentiment (ven 25/4) e FOMC (mag 6–7) sono i prossimi discriminanti direzionali.';}
+  else{cls='vneu';vt='Moderatamente favorevole ('+macroScore.toFixed(1)+'/10)';vb='Quadro orientato rialzo senza convinzione forte. Geopolitica Iran è il fattore dominante questa settimana.';}
+  mv.className='v '+cls;
+  mv.querySelector('.vt').textContent=vt;
+  mv.querySelector('.vb').textContent=vb;
+  updateSynthesis();
+}
+
+// ═══════════ MYFXBOOK ═══════════
+let sentiScore=5.5;
+const FX_FB={lp:60,sp:40,la:4751,sa:4346};
+
+async function fetchFX(sessionId=null){
+  document.getElementById('fx-load').style.display='flex';
+  document.getElementById('fx-body').style.display='none';
+  await new Promise(r=>setTimeout(r,500));
+  if(sessionId&&sessionId.length>6){
+    try{
+      const url=`https://www.myfxbook.com/api/get-community-outlook.json?session=${encodeURIComponent(sessionId)}`;
+      const ac2=new AbortController();
+      const t2=setTimeout(()=>ac2.abort(),7000);
+      const r=await fetch(url,{signal:ac2.signal});
+      clearTimeout(t2);
+      const d=await r.json();
+      if(d.error!==false&&d.error!==0)throw new Error(d.message);
+      const xau=d.outlook.find(x=>x.name==='XAUUSD'||x.name==='XAU/USD');
+      if(!xau)throw new Error('Not found');
+      renderFX(Math.round(xau.longsPercent),Math.round(xau.shortsPercent),xau.longAvgPrice,xau.shortAvgPrice);
+      return;
+    }catch(e){console.warn('FX API:',e.message);}
+  }
+  renderFX(FX_FB.lp,FX_FB.sp,FX_FB.la,FX_FB.sa);
+}
+
+function renderFX(lp,sp,la,sa){
+  document.getElementById('fx-load').style.display='none';
+  document.getElementById('fx-body').style.display='block';
+  document.getElementById('fx-lp').textContent=lp+'%';
+  document.getElementById('fx-sp').textContent=sp+'%';
+  document.getElementById('fx-lv').textContent=lp+'%';
+  document.getElementById('fx-sv').textContent=sp+'%';
+  document.getElementById('fx-la').textContent='entry $'+parseFloat(la).toFixed(0);
+  document.getElementById('fx-sa').textContent='entry $'+parseFloat(sa).toFixed(0);
+  document.getElementById('ct-l').textContent=lp+'%';
+  document.getElementById('ct-s').textContent=sp+'%';
+  setTimeout(()=>{
+    document.getElementById('gfl').style.width=lp+'%';
+    document.getElementById('gfs').style.width=sp+'%';
+  },50);
+  const fv=document.getElementById('fx-v');
+  let vsig,vsub,vcls;
+  if(lp>70){vcls='vbear';vsig='BEAR';vsub='Euforia retail';document.getElementById('fx-v').querySelector('.vt').textContent='⚠ Euforia — segnale contrarian BEAR';document.getElementById('fx-v').querySelector('.vb').textContent='Retail >70% long: mani forti probabilmente in distribuzione. Non aggiungere posizioni long.';}
+  else if(lp<35){vcls='vbull';vsig='BULL';vsub='Retail pessimista';document.getElementById('fx-v').querySelector('.vt').textContent='Pessimismo retail — segnale contrarian BULL';document.getElementById('fx-v').querySelector('.vb').textContent='Retail <35% long: mani forti probabilmente in accumulo silenzioso.';}
+  else if(lp>55){vcls='vwarn';vsig='CAUTO';vsub='FOMO parziale';document.getElementById('fx-v').querySelector('.vt').textContent='Cautela — '+lp+'% retail long';document.getElementById('fx-v').querySelector('.vb').textContent='Geopolitica sostiene la domanda difensiva reale. Monitorare il trend nelle prossime sessioni.';}
+  else{vcls='vneu';vsig='NEUTRO';vsub='Bilanciato';document.getElementById('fx-v').querySelector('.vt').textContent='Sentiment bilanciato';document.getElementById('fx-v').querySelector('.vb').textContent='Nessun estremo. Momento adatto per seguire il trend senza eccessi di size.';}
+  document.getElementById('fx-v').className='v '+vcls;
+  document.getElementById('fx-sig').textContent=vsig;
+  document.getElementById('fx-ss').textContent=vsub;
+  sentiScore=lp>70?3.5:lp<35?8:lp>55?5.5:6.5;
+  updateSynthesis();
+}
+
+function fetchFXKey(){
+  const k=document.getElementById('fx-key').value.trim();
+  if(!k){alert('Inserisci il session token');return;}
+  fetchFX(k);
+}
+
+// ═══════════ PSYCH CYCLE ═══════════
+const PSYCHS=[
+  {n:'Ottimismo',c:'pg',d:'Fase iniziale di recupero. Retail scettico, istituzionali già long. Seguire il ciclo con disciplina, non il pessimismo.'},
+  {n:'Esaltazione',c:'pg',d:'Fiducia crescente. Retail comincia a credere. Istituzionali tengono. Pianificare la strategia di uscita progressiva.'},
+  {n:'Euforia',c:'pa',d:'MASSIMO DI MERCATO. Tutti bullish. Istituzionali distribuiscono silenziosamente. Massimo rischio per chi compra ora.'},
+  {n:'Ansia',c:'pa',d:'Primi dubbi. Volatilità aumenta. Istituzionali accelerano la distribuzione. Zona critica — ridurre size.'},
+  {n:'Negazione',c:'pr',d:'"È solo una correzione." Retail mantiene perdite. Istituzionali usano i rimbalzi per finire di scaricare i residui.'},
+  {n:'Paura',c:'pr',d:'Perdite reali iniziano a fare male. Istituzionali iniziano il primo DCA silenzioso sui livelli tecnici chiave.'},
+  {n:'Disperazione',c:'pr',d:'"Non tornerà mai." Istituzionali in paziente attesa della capitolazione finale per accelerare l\'accumulo.'},
+  {n:'Panico',c:'pr',d:'MINIMO DI MERCATO. Capitolazione totale. Volume massimo. Istituzionali compratori aggressivi. Zona di massima opportunità.'},
+  {n:'FOMO',c:'pb',d:'Retail insegue il rialzo già maturo. Istituzionali long da tempo. Segnale ritardato — aspettare sempre il pullback.'},
+];
+const PS_SCORES=[7,6,3,4,4,6,7,8,4];
+let selPsych=-1;
+
+function buildPsychStrip(){
+  const el=document.getElementById('pstrip');
+  el.innerHTML=PSYCHS.map((p,i)=>`<div class="pp ${p.c}" onclick="selP(${i})">${p.n}</div>`).join('');
+}
+
+function selP(i){
+  selPsych=i;
+  const p=PSYCHS[i];
+  const cls=i<=1?'vbull':i===2||i===8?'vwarn':i>=3&&i<=7?'vbear':'vneu';
+  const pd=document.getElementById('psych-d');
+  pd.className='v '+cls;
+  pd.querySelector('.vt').textContent=p.n;
+  pd.querySelector('.vb').textContent=p.d;
+  updateSynthesis();
+}
+
+// ═══════════ PHASE CYCLE ═══════════
+const PHASES=[
+  {name:'Accumulo',bg:'var(--bull-s)',tc:'var(--bull)',score:8,
+   macro:'CPI in calo/basso, BC pausa o tagli. DXY si stabilizza. Economia debole ma in miglioramento.',
+   cycle:'DCA silenzioso nelle zone di congestione. Fakeout ribassisti. Volume basso.',
+   psych:'Avvilimento/speranza. Retail spaurito. Media bearish. Massima opportunità = massimo pessimismo.',
+   cot:'Commerciali iniziano long. NC ancora short o piatti.',
+   op:'Bias long paziente. Attendere fine congestione. Non seguire il pessimismo retail.'},
+  {name:'Ascesa',bg:'var(--blue-s)',tc:'var(--blue)',score:7,
+   macro:'PIL in ripresa, occupazione migliora. Fed ha tagliato o in pausa. DXY debole.',
+   cycle:'Istituzionali long già posizionati. Retail entra timidamente. HH/HL regolari.',
+   psych:'Ottimismo/esaltazione. FOMO crescente ma non ancora euforia.',
+   cot:'NC long aumenta gradualmente. Comm tengono.',
+   op:'Cavalcare il trend con trailing. Pianificare la strategia di uscita progressiva.'},
+  {name:'Distribuzione',bg:'var(--warn-s)',tc:'var(--warn)',score:4,
+   macro:'Ancora forte in apparenza. Inflazione riprende. Fed segnala restrizione. Salari salgono.',
+   cycle:'Istituzionali scaricano in blocchi discreti. Falsi massimi e trappole rialziste.',
+   psych:'Euforia/ansia. Tutti bullish. Media stracarica. Massimo rischio per il retail.',
+   cot:'Comm short massiccio. NC long al max storico — segnale inverso classico.',
+   op:'Ridurre/chiudere long. Non comprare i falsi breakout. Aspettare cambio struttura.'},
+  {name:'Declino',bg:'var(--bear-s)',tc:'var(--bear)',score:2,
+   macro:'PIL in calo. Tassi reali positivi alti. DXY forte. Possibile recessione.',
+   cycle:'Crollo veloce e deciso. Istituzionali short. Bull trap per scaricare residui.',
+   psych:'Paura/disperazione/panico. Capitolazione. Vendite indiscriminate.',
+   cot:'Comm short dominanti. NC short al max (segnale vicino al bottom).',
+   op:'Non comprare rimbalzi prematuri. Aspettare capitolazione per il prossimo accumulo.'},
+];
+let currentPhase=-1;
+
+function selPhase(i){
+  currentPhase=i;
+  document.querySelectorAll('.ph').forEach((c,j)=>{c.className=c.className.replace(/\s*sel/,'');if(j===i)c.className+=' sel';});
+  const p=PHASES[i];
+  const d=document.getElementById('phase-d');
+  d.style.display='block';
+  d.className='phase-detail ph-detail-'+i;
+  const colors=['var(--bull)','var(--blue)','var(--warn)','var(--bear)'];
+  const bgs=['var(--bull-s)','var(--blue-s)','var(--warn-s)','var(--bear-s)'];
+  d.style.cssText='display:block;background:'+bgs[i]+';border:0.5px solid '+colors[i]+';border-radius:9px;padding:1rem 1.15rem;margin-bottom:11px';
+  d.innerHTML=`<div style="font-size:12px;font-weight:700;color:${colors[i]};margin-bottom:9px;letter-spacing:.02em">FASE ${i+1} — ${p.name.toUpperCase()}</div>
+  ${[['Contesto macro',p.macro],['Ciclo',p.cycle],['Psicologia',p.psych],['COT',p.cot]].map(([k,v])=>`<div class="phase-row"><span class="phase-key">${k.toUpperCase()}</span><span>${v}</span></div>`).join('')}
+  <div class="phase-row"><span class="phase-op-key" style="color:${colors[i]}">OPERATIVITÀ</span><span style="color:${colors[i]};font-weight:600">${p.op}</span></div>`;
+  updateSynthesis();
+}
+
+// ═══════════ MINDSET ═══════════
+const QUOTES=[
+  {t:'Il vero lavoro nel trading non è sul mercato, ma dentro di te.',s:'Mindset da Trader · Principio Fondamentale'},
+  {t:'Le credenze diventano pensieri, i pensieri diventano parole, le parole diventano azioni, le azioni diventano abitudini, le abitudini diventano il tuo destino.',s:'Mindset da Trader · Catena di Causalità'},
+  {t:'Non vedi il mercato così com\'è, ma lo vedi attraverso il tuo mindset.',s:'Sezione 1 · Definizione di Mindset'},
+  {t:'Una operazione persa eseguita perfettamente secondo il piano è una vittoria.',s:'Sezione 3 · Pilastro 2 — Focus sul Processo'},
+  {t:'Non devi controllare il mercato. Devi controllare te stesso.',s:'Sezione 5 · Illusione del Controllo'},
+  {t:'Non tradare è spesso la decisione più profittevole che si possa prendere.',s:'Sezione 5 · FOMO'},
+  {t:'Le competenze tecniche ti porteranno fino a un certo punto, ma il mindset determina fino a che punto potrai spingerti.',s:'Conclusioni'},
+  {t:'Il mercato offrirà sempre nuove opportunità. Non sono rare. Ce ne saranno altre domani, la prossima settimana.',s:'Sezione 5 · FOMO'},
+];
+let qIdx=0;
+function showQ(){
+  document.getElementById('q-text').textContent=QUOTES[qIdx].t;
+  document.getElementById('q-src').textContent=QUOTES[qIdx].s;
+  document.getElementById('q-n').textContent=(qIdx+1)+'/'+QUOTES.length;
+}
+function prevQ(){qIdx=(qIdx-1+QUOTES.length)%QUOTES.length;showQ();}
+function nextQ(){qIdx=(qIdx+1)%QUOTES.length;showQ();}
+
+let selMindsetType=null;
+function selMT(type){
+  selMindsetType=type;
+  ['fisso','crescita','beneficio'].forEach(t=>{
+    document.getElementById('mt-'+t).classList.toggle('ssel',t===type);
+  });
+  const fd=document.getElementById('mt-feedback');
+  fd.style.display='block';
+  const msgs={
+    fisso:{cls:'vbear',t:'Mindset Fisso rilevato',b:'Attenzione: questo mindset sabota i risultati. Ogni perdita diventa "prova di incapacità". Inizia a sfidare la credenza: "posso imparare da ogni operazione."'},
+    crescita:{cls:'vbull',t:'Mindset di Crescita — corretto approccio',b:'Ottimo punto di partenza. Ogni perdita è informazione. Ogni drawdown è un corso accelerato pagato a rate. Continua a documentare e analizzare.'},
+    beneficio:{cls:'vgold',t:'Mindset di Beneficio — livello avanzato',b:'Stai operando per qualcosa di più grande del profitto personale. Questo riduce l\'ego e aumenta la disciplina. Eccellente punto di arrivo.'},
+  };
+  const m=msgs[type];
+  fd.className='v '+m.cls;
+  fd.querySelector('.vt').textContent=m.t;
+  fd.querySelector('.vb').textContent=m.b;
+  updateSynthesis();
+}
+
+let mindsetScore=5;
+function scoreMC(){
+  let ok=0;
+  for(let i=1;i<=7;i++) if(document.getElementById('mc'+i)?.checked) ok++;
+  mindsetScore=Math.round(ok/7*10*10)/10;
+  const el=document.getElementById('mc-result');
+  const cls=ok>=6?'vbull':ok>=4?'vwarn':ok>=2?'vneu':'vbear';
+  const msgs=['Stop. Non operare oggi. Stai portando troppa vulnerabilità emotiva.','Stato mentale fragile. Riduci la size al 50%.','Stato accettabile. Procedi con cautela e stop rigorosi.','Buono. Procedi con size normale.','Ottimo. Condizioni mentali ideali per operare.','Perfetto. Massima chiarezza e disciplina.'];
+  const msgIdx=Math.min(Math.floor(ok/7*5),5);
+  el.className='v '+cls;
+  el.querySelector('.vt').textContent=ok+'/7 — '+msgs[msgIdx];
+  el.querySelector('.vb').textContent='Score mindset: '+mindsetScore.toFixed(1)+'/10';
+  updateSynthesis();
+}
+
+function selEmo(evt,key,label){
+  selectedEmo={key,label};
+  document.querySelectorAll('.emo-btn').forEach(b=>b.classList.remove('sel'));
+  evt.currentTarget.classList.add('sel');
+}
+
+function saveEntry(){
+  const txt=document.getElementById('j-area').value.trim();
+  if(!txt){alert('Scrivi qualcosa prima di salvare');return;}
+  const entry={
+    id:Date.now(),
+    date:new Date().toLocaleString('it-IT',{dateStyle:'short',timeStyle:'short'}),
+    text:txt,
+    emo:selectedEmo,
+    mc:mindsetScore,
+  };
+  journal.unshift(entry);
+  DB.set('journal',journal);
+  document.getElementById('j-area').value='';
+  selectedEmo=null;
+  document.querySelectorAll('.emo-btn').forEach(b=>b.classList.remove('sel'));
+  renderJournal();
+}
+
+function renderJournal(){
+  const el=document.getElementById('j-list');
+  document.getElementById('j-count').textContent=journal.length+' voci salvate';
+  if(!journal.length){el.innerHTML='<div class="empty">Nessuna voce salvata.</div>';return;}
+  el.innerHTML=journal.slice(0,8).map(e=>`
+    <div class="jentry">
+      <div class="je-date">${e.date}</div>
+      <div class="je-txt">${e.text}</div>
+      ${e.emo?`<span class="je-emo emo-${e.emo.key}">${e.emo.label}</span>`:''}
+      <button class="je-del" onclick="delEntry(${e.id})">✕</button>
+    </div>`).join('');
+}
+
+function delEntry(id){
+  journal=journal.filter(e=>e.id!==id);
+  DB.set('journal',journal);
+  renderJournal();
+}
+
+function exportJournal(){
+  const txt=journal.map(e=>`[${e.date}]${e.emo?' ('+e.emo.label+')':''}\n${e.text}\n`).join('\n---\n');
+  const a=document.createElement('a');
+  a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(txt);
+  a.download='journal_trading_'+new Date().toISOString().split('T')[0]+'.txt';
+  a.click();
+}
+
+// ═══════════ SYNTHESIS + RINGS ═══════════
+function updateSynthesis(){
+  const ps=selPsych>=0?PS_SCORES[selPsych]:5;
+  const cs=currentPhase>=0?PHASES[currentPhase].score:6;
+  const total=(macroScore+sentiScore+cs+ps+mindsetScore)/5;
+
+  document.getElementById('rv1').textContent=macroScore.toFixed(1);
+  document.getElementById('rv2').textContent=sentiScore.toFixed(1);
+  document.getElementById('rv3').textContent=currentPhase>=0?cs.toFixed(1):'—';
+  document.getElementById('rv4').textContent=mindsetScore.toFixed(1);
+  document.getElementById('rv0').textContent=(currentPhase>=0&&selPsych>=0)?total.toFixed(1):'—';
+
+  // Update DB count display only
+  const dbCountEl=document.getElementById('db-count');
+  if(dbCountEl)dbCountEl.textContent=analyses.length+' analisi salvate';
+
+  if(currentPhase<0||selPsych<0){
+    document.getElementById('syn-v').className='v vneu';
+    document.getElementById('syn-v').querySelector('.vt').textContent='Calibra Ciclo e Psicologia';
+    document.getElementById('syn-v').querySelector('.vb').textContent='—';
+    return;
+  }
+
+  const sv=document.getElementById('syn-v');
+  let cls,vt,vb;
+  if(total>=7){cls='vbull';vt='✓ Allineamento rialzista ('+total.toFixed(1)+'/10)';vb='Macro + sentiment + ciclo + psicologia + mindset allineati. Bias long con disciplina e stop rigorosi. NC long elevato (58%) richiede gestione attenta.';}
+  else if(total<=4){cls='vbear';vt='✗ Allineamento ribassista ('+total.toFixed(1)+'/10)';vb='Tutti i livelli indicano pressione ribassista. Non contraddire le mani forti. Attendere capitolazione per il prossimo ciclo di accumulo.';}
+  else if(total<=5.5){cls='vwarn';vt='⚠ Segnali misti ('+total.toFixed(1)+'/10)';vb='Conflitti tra livelli. Michigan Sentiment (ven 25/4) e FOMC (mag 6–7) sono i prossimi discriminanti. Size ridotta, stop stretti.';}
+  else{cls='vgold';vt='→ Favorevole con riserve ('+total.toFixed(1)+'/10)';vb='Quadro positivo con incertezze residue. Size normale, non aggressiva. COT del venerdì come monitor settimanale.';}
+  sv.className='v '+cls;
+  sv.querySelector('.vt').textContent=vt;
+  sv.querySelector('.vb').textContent=vb;
+
+  // Checklist
+  const chks=[];
+  if(currentPhase<=1)chks.push({t:'Fine della congestione laterale: breakout confermato da volume e chiusura sopra struttura',c:'dg'});
+  if(currentPhase>=2)chks.push({t:'Identificare supporti chiave per il prossimo ciclo di accumulo istituzionale',c:'da'});
+  chks.push({t:'COT venerdì: Δ NC long vs settimana precedente — variazione >±10k = segnale direzionale',c:'dg'});
+  chks.push({t:'Michigan Sentiment ven 25/4: aspettative inflazione consumatori impattano direttamente la forward guidance Fed',c:'dg'});
+  chks.push({t:'DXY: rottura sopra 100 = pressione ribassista immediata su XAU/USD',c:'da'});
+  if(selPsych===2||selPsych===8)chks.push({t:'Euforia/FOMO rilevata: non aggiungere long. Riduci size o esci parzialmente',c:'dr'});
+  if(selPsych===7)chks.push({t:'Capitolazione: primo tranche di accumulo — size al 10–15% del normale',c:'dg'});
+  chks.push({t:'Geopolitica Iran: qualsiasi segnale di de-escalation = -5/10% XAU in poche ore. Aggiorna stop',c:'dr'});
+  if(mindsetScore<5)chks.push({t:'Mindset check: score basso ('+mindsetScore.toFixed(1)+'/10) — valuta di non operare oggi',c:'dr'});
+  document.getElementById('syn-chk').innerHTML=chks.map(c=>`<li><div class="d ${c.c}"></div>${c.t}</li>`).join('');
+}
+
+function animateRings(){
+  const ps=selPsych>=0?PS_SCORES[selPsych]:5;
+  const cs=currentPhase>=0?PHASES[currentPhase].score:6;
+  const total=(macroScore+sentiScore+cs+ps+mindsetScore)/5;
+  const C=207.3,CT=276.5;
+  [[macroScore,'r1',C],[sentiScore,'r2',C],[cs,'r3',C],[mindsetScore,'r4',C]].forEach(([s,id,c])=>{
+    const el=document.getElementById(id);
+    if(el)el.style.strokeDashoffset=(c*(1-Math.min(1,Math.max(0,s/10)))).toFixed(1);
+  });
+  const r0=document.getElementById('r0');
+  if(r0&&currentPhase>=0&&selPsych>=0)r0.style.strokeDashoffset=(CT*(1-total/10)).toFixed(1);
+  updateSynthesis();
+}
+
+// ═══════════ DB ANALISI ═══════════
+function saveAnalysis(){
+  const ps=selPsych>=0?PS_SCORES[selPsych]:5;
+  const cs=currentPhase>=0?PHASES[currentPhase].score:6;
+  const total=(macroScore+sentiScore+cs+ps+mindsetScore)/5;
+  const entry={
+    id:Date.now(),
+    date:new Date().toLocaleString('it-IT',{dateStyle:'short',timeStyle:'short'}),
+    macro:macroScore.toFixed(1),
+    senti:sentiScore.toFixed(1),
+    ciclo:currentPhase>=0?PHASES[currentPhase].name:'—',
+    psych:selPsych>=0?PSYCHS[selPsych].n:'—',
+    mindset:mindsetScore.toFixed(1),
+    total:total.toFixed(1),
+    xau:document.getElementById('t-xau').textContent,
+  };
+  analyses.unshift(entry);
+  DB.set('analyses',analyses);
+  renderDB();
+  document.getElementById('db-count').textContent=analyses.length+' analisi salvate';
+  // Flash confirmation
+  const btn=event.target;
+  btn.textContent='✓ SALVATO';setTimeout(()=>btn.textContent='SALVA ANALISI',1500);
+}
+
+function renderDB(){
+  const el=document.getElementById('db-list');
+  if(!analyses.length){el.innerHTML='<div class="empty">Nessuna analisi salvata.</div>';return;}
+  el.innerHTML=analyses.slice(0,6).map(a=>`
+    <div class="jentry">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="je-date">${a.date} · XAU ${a.xau}</div>
+        <button class="je-del" onclick="delAnalysis(${a.id})">✕</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:5px">
+        <span class="b ba">Macro ${a.macro}</span>
+        <span class="b bb">Sentiment ${a.senti}</span>
+        <span class="b bg">Ciclo: ${a.ciclo}</span>
+        <span class="b ba">Psych: ${a.psych}</span>
+        <span class="b bx">Mindset ${a.mindset}</span>
+        <span class="b" style="background:rgba(201,168,76,.2);color:#f0d080"><strong>Tot: ${a.total}/10</strong></span>
+      </div>
+    </div>`).join('');
+}
+
+function delAnalysis(id){
+  analyses=analyses.filter(a=>a.id!==id);
+  DB.set('analyses',analyses);
+  renderDB();
+  document.getElementById('db-count').textContent=analyses.length+' analisi salvate';
+}
+
+function exportDB(){
+  const txt=analyses.map(a=>`[${a.date}] XAU:${a.xau} Macro:${a.macro} Senti:${a.senti} Ciclo:${a.ciclo} Psych:${a.psych} Mindset:${a.mindset} TOTAL:${a.total}`).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(txt);
+  a.download='analisi_trading_'+new Date().toISOString().split('T')[0]+'.txt';
+  a.click();
+}
+
+function clearDB(){
+  if(!confirm('Svuotare il database locale? Questa azione è irreversibile.'))return;
+  analyses=[];journal=[];
+  DB.set('analyses',analyses);DB.set('journal',journal);
+  renderDB();renderJournal();
+  document.getElementById('db-count').textContent='0 analisi salvate';
+  document.getElementById('j-count').textContent='0 voci salvate';
+}
+
+// ═══════════ SOUND ENGINE ═══════════
+(function(){
+  let AC=null,masterG=null,oscL=null,oscR=null,merger=null,nSrc=null,nGain=null,nFilt=null;
+  let playing=false,panelOpen=false;
+  let timerId=null,vizId=null,elapsed=0;
+  let mode='gamma',noise='none',carrier=200,vol=55,nmix=25;
+
+  const MODES={
+    gamma:{beat:40,info:'<strong>⚡ Gamma 40Hz</strong> — Concentrazione massima. Elaborazione cognitiva rapida. Usa le cuffie per l\'effetto binaural.'},
+    beta: {beat:18,info:'<strong>◎ Beta 18Hz</strong> — Focus attivo e pensiero analitico. Ideale per lettura e problem solving.'},
+    alpha:{beat:10,info:'<strong>〜 Alpha 10Hz</strong> — Rilassamento vigile. Riduce lo stress mantenendo la lucidità.'},
+    theta:{beat:6, info:'<strong>◌ Theta 6Hz</strong> — Meditazione profonda. Intuizione e recupero cognitivo.'},
+    '432':{beat:0,freq:432,info:'<strong>✦ 432 Hz</strong> — Accordatura naturale. Riduce cortisolo, favorisce equilibrio emotivo.'},
+    '528':{beat:0,freq:528,info:'<strong>✧ 528 Hz</strong> — Miracle tone. Riduce ansia, promuove stati di flow.'},
+  };
+
+  // build viz
+  const vw=document.getElementById('sviz');
+  for(let i=0;i<24;i++){const b=document.createElement('div');b.className='svb';b.id='svb'+i;b.style.height='3px';vw.appendChild(b);}
+
+  window.sPanelToggle=()=>{panelOpen=!panelOpen;document.getElementById('spanel').classList.toggle('h',!panelOpen);};
+
+  function initAC(){
+    if(AC)return;
+    AC=new(window.AudioContext||window.webkitAudioContext)();
+    masterG=AC.createGain();masterG.gain.value=vol/100*.65;masterG.connect(AC.destination);
+  }
+
+  function buildOscs(){
+    [oscL,oscR,merger].forEach(n=>{try{n&&n.stop&&n.stop();}catch(e){}try{n&&n.disconnect&&n.disconnect();}catch(e){}});
+    oscL=oscR=merger=null;
+    const m=MODES[mode];
+    if(m.beat===0){
+      const o=AC.createOscillator(),g=AC.createGain();
+      o.type='sine';o.frequency.value=m.freq;
+      g.gain.setValueAtTime(0,AC.currentTime);g.gain.linearRampToValueAtTime(.55,AC.currentTime+2.5);
+      o.connect(g);g.connect(masterG);o.start();oscL=o;oscR=g;
+    }else{
+      merger=AC.createChannelMerger(2);merger.connect(masterG);
+      const oL=AC.createOscillator(),gL=AC.createGain(),oR=AC.createOscillator(),gR=AC.createGain();
+      oL.type=oR.type='sine';oL.frequency.value=carrier;oR.frequency.value=carrier+m.beat;
+      [gL,gR].forEach(g=>{g.gain.setValueAtTime(0,AC.currentTime);g.gain.linearRampToValueAtTime(.52,AC.currentTime+1.8);});
+      oL.connect(gL);gL.connect(merger,0,0);oR.connect(gR);gR.connect(merger,0,1);
+      oL.start();oR.start();oscL=oL;oscR=oR;
+    }
+  }
+
+  function buildNoise(){
+    if(nSrc){try{nSrc.stop();}catch(e){}nSrc=null;}
+    if(noise==='none')return;
+    const sz=AC.sampleRate*3,buf=AC.createBuffer(1,sz,AC.sampleRate),d=buf.getChannelData(0);
+    if(noise==='white'){for(let i=0;i<sz;i++)d[i]=Math.random()*2-1;}
+    else if(noise==='pink'){
+      let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+      for(let i=0;i<sz;i++){const w=Math.random()*2-1;b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.96900*b2+w*.1538520;b3=.86650*b3+w*.3104856;b4=.55*b4+w*.5329522;b5=-.7616*b5-w*.016898;d[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11;b6=w*.115926;}
+    }else{let l=0;for(let i=0;i<sz;i++){const w=Math.random()*2-1;d[i]=(l+.02*w)/1.02;l=d[i];d[i]*=3.5;}}
+    nSrc=AC.createBufferSource();nSrc.buffer=buf;nSrc.loop=true;
+    nFilt=AC.createBiquadFilter();nFilt.type='lowpass';nFilt.frequency.value=noise==='brown'?600:noise==='pink'?3000:12000;
+    nGain=AC.createGain();nGain.gain.setValueAtTime(0,AC.currentTime);nGain.gain.linearRampToValueAtTime(nmix/100*.32,AC.currentTime+1.8);
+    nSrc.connect(nFilt);nFilt.connect(nGain);nGain.connect(masterG);nSrc.start();
+  }
+
+  window.sTogglePlay=function(){
+    initAC();if(AC.state==='suspended')AC.resume();
+    if(!playing){
+      buildOscs();buildNoise();playing=true;elapsed=0;
+      timerId=setInterval(()=>{elapsed++;document.getElementById('stmr').textContent=fmt(elapsed);},1000);
+      startViz();
+      document.getElementById('spb').classList.add('on');document.getElementById('spi').textContent='◼';document.getElementById('spt').textContent='IN CORSO';
+      document.getElementById('stgl').classList.add('on');document.getElementById('sdot').classList.add('on');
+    }else{
+      masterG.gain.linearRampToValueAtTime(0,AC.currentTime+.9);
+      setTimeout(()=>{[oscL,oscR].forEach(n=>{try{n&&n.stop&&n.stop();}catch(e){}});try{nSrc&&nSrc.stop();}catch(e){}try{merger&&merger.disconnect();}catch(e){}oscL=oscR=merger=nSrc=null;masterG.gain.value=vol/100*.65;},1000);
+      playing=false;clearInterval(timerId);stopViz();
+      document.getElementById('spb').classList.remove('on');document.getElementById('spi').textContent='▶';document.getElementById('spt').textContent='AVVIA';
+      document.getElementById('stgl').classList.remove('on');document.getElementById('sdot').classList.remove('on');
+    }
+  };
+
+  window.sSetMode=function(m){
+    mode=m;document.querySelectorAll('.smb').forEach(b=>b.classList.remove('sel'));document.getElementById('sm-'+m).classList.add('sel');
+    document.getElementById('sfi').innerHTML=MODES[m].info;
+    if(playing)buildOscs();
+  };
+
+  window.sSetNoise=function(n){
+    noise=n;document.querySelectorAll('.snp').forEach(b=>b.classList.remove('sel'));document.getElementById('sn-'+n).classList.add('sel');
+    if(playing)buildNoise();
+  };
+
+  window.sSetVol=function(v){vol=parseInt(v);document.getElementById('svol-v').textContent=v;if(masterG)masterG.gain.linearRampToValueAtTime(v/100*.65,AC.currentTime+.05);};
+  window.sSetNMix=function(v){nmix=parseInt(v);document.getElementById('snmix-v').textContent=v;if(nGain)nGain.gain.linearRampToValueAtTime(v/100*.32,AC.currentTime+.05);};
+  window.sSetCar=function(v){carrier=parseInt(v);document.getElementById('scar-v').textContent=v;if(oscL&&oscL.frequency)oscL.frequency.linearRampToValueAtTime(carrier,AC.currentTime+.1);if(oscR&&oscR.frequency)oscR.frequency.linearRampToValueAtTime(carrier+MODES[mode].beat,AC.currentTime+.1);};
+
+  function startViz(){
+    vizId=setInterval(()=>{
+      if(!playing)return;
+      const beat=MODES[mode].beat||8,t=Date.now()/1000;
+      document.querySelectorAll('.svb').forEach((b,i)=>{
+        const h=3+Math.abs(Math.sin(t*(beat*.09+.3)+i*.38))*32+Math.random()*.12*8;
+        b.style.height=h+'px';b.classList.toggle('on',h>18);
+      });
+    },60);
+  }
+  function stopViz(){clearInterval(vizId);document.querySelectorAll('.svb').forEach(b=>{b.style.height='3px';b.classList.remove('on');});}
+  function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+
+  document.addEventListener('visibilitychange',()=>{if(AC&&AC.state==='suspended'&&playing)AC.resume();});
+})();
+
+// ═══════════ INIT ═══════════
+showQ();
+buildPsychStrip();
+fetchCPI();
+fetchFX(null);
+calcMacro();
+renderJournal();
+renderDB();
+
+// ═══════════ BACKGROUND GALLERY ═══════════
+(function(){
+  const BKGS=[
+    {id:'aurora',   name:'Aurora',    css:'linear-gradient(135deg,#0f0c29,#302b63,#24243e)',type:'gradient'},
+    {id:'ocean',    name:'Oceano',    css:'linear-gradient(160deg,#0a1628 0%,#1a3a5c 40%,#0d5079 70%,#00b4d8 100%)',type:'gradient'},
+    {id:'forest',   name:'Foresta',   css:'linear-gradient(150deg,#0a1f0a,#1a3a1a,#2d5a27,#1a3a0a)',type:'gradient'},
+    {id:'ember',    name:'Brace',     css:'linear-gradient(145deg,#1a0505,#3d1010,#7a2020,#c0392b,#e67e22)',type:'gradient'},
+    {id:'midnight', name:'Mezzanotte',css:'linear-gradient(135deg,#0a0a1a 0%,#1a1a3a 50%,#0d0d2e 100%)',type:'gradient'},
+    {id:'gold',     name:'Oro',       css:'linear-gradient(145deg,#1a1200,#3d2e00,#7a5c00,#b8922a,#e2b84a)',type:'gradient'},
+    {id:'nebula',   name:'Nebulosa',  css:'linear-gradient(135deg,#1a0a2e,#2d1a4a,#4a1a6a,#1a2a4a,#0a1a3a)',type:'gradient'},
+    {id:'arctic',   name:'Artico',    css:'linear-gradient(160deg,#0d2137,#1a4a6a,#2a6a8a,#3a8aaa,#e8f4fc)',type:'gradient'},
+    {id:'volcano',  name:'Vulcano',   css:'linear-gradient(160deg,#0a0000,#1a0500,#3a1000,#7a2000,#c04010)',type:'gradient'},
+    {id:'slate',    name:'Ardesia',   css:'linear-gradient(135deg,#1a1a1e,#2a2a30,#1e2030,#141420)',type:'gradient'},
+    {id:'rose',     name:'Rosa',      css:'linear-gradient(145deg,#1a0a12,#3a1a28,#6a2a48,#9a3a6a,#c04a8a)',type:'gradient'},
+    {id:'teal',     name:'Acqua',     css:'linear-gradient(145deg,#001a1a,#003a3a,#006a5a,#00a880,#00d4a0)',type:'gradient'},
+    /* Animated gradients */
+    {id:'anim-pulse',name:'Pulse',type:'animated',anim:'pulse'},
+    {id:'anim-wave', name:'Wave',  type:'animated',anim:'wave'},
+    {id:'anim-mesh', name:'Mesh',  type:'animated',anim:'mesh'},
+    /* Texture/pattern */
+    {id:'grid',     name:'Grid',      type:'pattern',pat:'grid'},
+    {id:'dots',     name:'Dots',      type:'pattern',pat:'dots'},
+    {id:'lines',    name:'Lines',     type:'pattern',pat:'lines'},
+  ];
+
+  // Animated canvas backgrounds
+  let animFrame=null,animType=null;
+
+  function stopAnim(){if(animFrame){cancelAnimationFrame(animFrame);animFrame=null;animType=null;}}
+
+  function runAnim(type){
+    stopAnim(); animType=type;
+    const canvas=document.createElement('canvas');
+    canvas.style.cssText='position:absolute;inset:0;width:100%;height:100%';
+    const bg=document.getElementById('bg-canvas');
+    bg.innerHTML='';bg.appendChild(canvas);
+    bg.style.background='#0a0a1a';
+    const ctx=canvas.getContext('2d');
+
+    function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+    resize();window.addEventListener('resize',resize);
+
+    let t=0;
+    function frame(){
+      if(animType!==type)return;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      const W=canvas.width,H=canvas.height;
+      t+=0.004;
+
+      if(type==='pulse'){
+        // Radial pulsing blobs
+        const blobs=[
+          {x:.3,y:.3,r:.35,c:'#302b63'},
+          {x:.7,y:.6,r:.4,c:'#24243e'},
+          {x:.5,y:.8,r:.3,c:'#0f0c29'},
+        ];
+        blobs.forEach((b,i)=>{
+          const pulse=Math.sin(t*1.2+i*2)*0.06;
+          const grd=ctx.createRadialGradient(b.x*W,b.y*H,0,b.x*W,b.y*H,(b.r+pulse)*Math.max(W,H));
+          grd.addColorStop(0,b.c+'ee');grd.addColorStop(1,'transparent');
+          ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);
+        });
+        // Gold shimmer
+        const grd2=ctx.createRadialGradient(
+          (.5+Math.sin(t*.7)*.2)*W,(.5+Math.cos(t*.5)*.2)*H,0,
+          (.5+Math.sin(t*.7)*.2)*W,(.5+Math.cos(t*.5)*.2)*H,.25*Math.max(W,H)
+        );
+        grd2.addColorStop(0,'rgba(201,168,76,.06)');grd2.addColorStop(1,'transparent');
+        ctx.fillStyle=grd2;ctx.fillRect(0,0,W,H);
+
+      } else if(type==='wave'){
+        // Flowing dark waves
+        ctx.fillStyle='#050510';ctx.fillRect(0,0,W,H);
+        for(let layer=0;layer<4;layer++){
+          ctx.beginPath();ctx.moveTo(0,H);
+          for(let x=0;x<=W;x+=4){
+            const y=H*.4+Math.sin(x*.005+t*(layer*.4+.5)+layer)*H*.12
+                      +Math.sin(x*.01+t*(layer*.3+.3))*H*.06;
+            ctx.lineTo(x,y);
+          }
+          ctx.lineTo(W,H);ctx.closePath();
+          const colors=['rgba(48,43,99,.7)','rgba(36,36,62,.8)','rgba(15,12,41,.9)','rgba(26,0,51,.5)'];
+          ctx.fillStyle=colors[layer];ctx.fill();
+        }
+
+      } else if(type==='mesh'){
+        // Mesh gradient
+        ctx.fillStyle='#0a0a1e';ctx.fillRect(0,0,W,H);
+        const pts=[
+          {x:.2+Math.sin(t*.7)*.1, y:.2+Math.cos(t*.5)*.1, c:'#302b63'},
+          {x:.8+Math.cos(t*.6)*.1, y:.2+Math.sin(t*.8)*.1, c:'#1a3a5c'},
+          {x:.5+Math.sin(t*.9)*.15, y:.6+Math.cos(t*.7)*.1, c:'#3a1a5c'},
+          {x:.2+Math.cos(t*.5)*.1, y:.8+Math.sin(t*.6)*.1, c:'#1a1a3a'},
+          {x:.8+Math.sin(t*.8)*.1, y:.8+Math.cos(t*.4)*.1, c:'#0f2a3a'},
+        ];
+        pts.forEach(p=>{
+          const g=ctx.createRadialGradient(p.x*W,p.y*H,0,p.x*W,p.y*H,.5*Math.max(W,H));
+          g.addColorStop(0,p.c+'cc');g.addColorStop(1,'transparent');
+          ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+        });
+      }
+      animFrame=requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function setPattern(pat){
+    stopAnim();
+    const bg=document.getElementById('bg-canvas');
+    bg.innerHTML='';
+    const patterns={
+      grid:`url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.06)' stroke-width='.5'%3E%3Cpath d='M0 0h40M0 10h40M0 20h40M0 30h40M0 40h40M0 0v40M10 0v40M20 0v40M30 0v40M40 0v40'/%3E%3C/g%3E%3C/svg%3E") center/40px 40px, linear-gradient(135deg,#0a0a1a,#1a1a2e)`,
+      dots:`url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='12' cy='12' r='1.2' fill='rgba(255,255,255,0.08)'/%3E%3C/svg%3E") center/24px 24px, linear-gradient(135deg,#0d0d1e,#1a1a30)`,
+      lines:`url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l60 60' stroke='rgba(201,168,76,0.06)' stroke-width='.8' fill='none'/%3E%3Cpath d='M60 0L0 60' stroke='rgba(255,255,255,0.04)' stroke-width='.8' fill='none'/%3E%3C/svg%3E") center/60px 60px, linear-gradient(135deg,#0a0a14,#141428)`,
+    };
+    bg.style.background=patterns[pat]||'#0a0a1a';
+  }
+
+  function setBG(item){
+    stopAnim();
+    const bg=document.getElementById('bg-canvas');
+    if(item.type==='gradient'){
+      bg.innerHTML='';bg.style.background=item.css;
+    } else if(item.type==='animated'){
+      runAnim(item.anim);
+    } else if(item.type==='pattern'){
+      setPattern(item.pat);
+    }
+    localStorage.setItem('ap_bg',item.id);
+    document.querySelectorAll('.bg-thumb').forEach(el=>el.classList.toggle('active',el.dataset.id===item.id));
+  }
+
+  function buildGrid(){
+    const grid=document.getElementById('bgGrid');
+    // Preview gradient for thumbs
+    const previewCSS={
+      aurora:'linear-gradient(135deg,#0f0c29,#302b63)',
+      ocean:'linear-gradient(160deg,#0a1628,#0d5079,#00b4d8)',
+      forest:'linear-gradient(150deg,#0a1f0a,#2d5a27)',
+      ember:'linear-gradient(145deg,#1a0505,#c0392b)',
+      midnight:'linear-gradient(135deg,#0a0a1a,#1a1a3a)',
+      gold:'linear-gradient(145deg,#1a1200,#b8922a)',
+      nebula:'linear-gradient(135deg,#1a0a2e,#4a1a6a)',
+      arctic:'linear-gradient(160deg,#0d2137,#3a8aaa)',
+      volcano:'linear-gradient(160deg,#0a0000,#c04010)',
+      slate:'linear-gradient(135deg,#1a1a1e,#2a2a30)',
+      rose:'linear-gradient(145deg,#1a0a12,#c04a8a)',
+      teal:'linear-gradient(145deg,#001a1a,#00d4a0)',
+      'anim-pulse':'linear-gradient(135deg,#302b63,#24243e)',
+      'anim-wave':'linear-gradient(160deg,#050510,#302b63)',
+      'anim-mesh':'linear-gradient(135deg,#0a0a1e,#3a1a5c)',
+      grid:'linear-gradient(135deg,#0a0a1a,#1a1a2e)',
+      dots:'linear-gradient(135deg,#0d0d1e,#1a1a30)',
+      lines:'linear-gradient(135deg,#0a0a14,#141428)',
+    };
+    grid.innerHTML=BKGS.map(b=>{
+      const extra=b.type==='animated'?'✦ ':b.type==='pattern'?'⊞ ':'';
+      return `<div class="bg-thumb" data-id="${b.id}"
+        style="background:${previewCSS[b.id]||'#111'}"
+        onclick="window._setBG_id('${b.id}')">
+        <span>${extra}${b.name}</span>
+      </div>`;
+    }).join('');
+  }
+
+  window._setBG_id=function(id){
+    const item=BKGS.find(b=>b.id===id);
+    if(item)setBG(item);
+  };
+
+  window.bgDrawer=function(){
+    document.getElementById('bg-drawer').classList.toggle('open');
+  };
+
+  window.setDim=function(v){
+    document.getElementById('dim-v').textContent=v+'%';
+    document.getElementById('bg-overlay').style.background=`rgba(0,0,0,${v/100})`;
+    localStorage.setItem('ap_dim',v);
+  };
+
+  // Init
+  buildGrid();
+  const savedBG=localStorage.getItem('ap_bg')||'midnight';
+  const savedDim=localStorage.getItem('ap_dim')||35;
+  const dimRng=document.getElementById('dim-rng');
+  dimRng.value=savedDim;
+  dimRng.style.setProperty('--pct',(savedDim/85*100)+'%');
+  setDim(savedDim);
+  window._setBG_id(savedBG);
+})();
+</script>
+</body>
+</html>
